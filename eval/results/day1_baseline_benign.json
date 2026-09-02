@@ -1,0 +1,73 @@
+{
+  "run": "day1_baseline",
+  "model": "protectai/deberta-v3-base-prompt-injection",
+  "listings_scored": 6000,
+  "all_listings_are_benign": true,
+  "note": "every listing is genuine seller text, so every INJECTION call is a false positive",
+  "headline": {
+    "threshold": 0.5,
+    "false_positives": 8,
+    "false_positive_rate_pct": 0.13
+  },
+  "threshold_sweep": {
+    "0.5": {
+      "false_positives": 8,
+      "fpr_pct": 0.13
+    },
+    "0.6": {
+      "false_positives": 8,
+      "fpr_pct": 0.13
+    },
+    "0.7": {
+      "false_positives": 8,
+      "fpr_pct": 0.13
+    },
+    "0.8": {
+      "false_positives": 8,
+      "fpr_pct": 0.13
+    },
+    "0.9": {
+      "false_positives": 7,
+      "fpr_pct": 0.12
+    },
+    "0.95": {
+      "false_positives": 5,
+      "fpr_pct": 0.08
+    },
+    "0.99": {
+      "false_positives": 3,
+      "fpr_pct": 0.05
+    }
+  },
+  "by_source": {
+    "amazon_in": {
+      "n": 5024,
+      "false_positives": 8,
+      "fpr_pct": 0.16
+    },
+    "flipkart": {
+      "n": 976,
+      "false_positives": 0,
+      "fpr_pct": 0.0
+    }
+  },
+  "score_distribution": {
+    "mean": 0.0013,
+    "median": 0.0,
+    "p90": 0.0,
+    "p99": 0.0,
+    "max": 0.9999
+  },
+  "throughput_listings_per_sec": 3.39,
+  "token_budget": 2048,
+  "max_batch": 32,
+  "torch_threads": 6,
+  "single_item_latency": {
+    "p50_ms": 367.9,
+    "p95_ms": 805.0,
+    "mean_ms": 439.3,
+    "n": 200
+  },
+  "truncated_at_512_tokens": 9,
+  "truncation_note": "listings longer than 512 tokens are cut; text past the cut is invisible to the model"
+}

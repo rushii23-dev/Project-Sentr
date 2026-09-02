@@ -1,0 +1,20 @@
+# secrets
+.env
+
+# data
+data/raw/
+!data/raw/.gitkeep
+
+# caches
+__pycache__/
+*.pyc
+.cache/
+demo/.llm_cache/
+.venv/
+.ipynb_checkpoints/
+
+# os
+desktop.ini
+.DS_Store
+
+CLAUDE.md

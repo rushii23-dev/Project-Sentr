@@ -1,0 +1,17 @@
+# Sentr -- all dependencies free / open source.
+# torch is installed separately from the CPU wheel index:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+transformers>=4.44
+tokenizers>=0.19
+sentencepiece>=0.2
+pandas>=2.0
+scikit-learn>=1.4
+datasets>=2.19
+pyyaml>=6.0
+fastapi>=0.110
+pillow>=10.0
+uvicorn>=0.29
+python-dotenv>=1.0
+razorpay>=1.4
+requests>=2.31

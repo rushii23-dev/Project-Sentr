@@ -1,0 +1,50 @@
+[
+ {
+  "family": "bricolage",
+  "weight": "400",
+  "file": "bricolage-400.woff2",
+  "kb": 75
+ },
+ {
+  "family": "bricolage",
+  "weight": "600",
+  "file": "bricolage-600.woff2",
+  "kb": 75
+ },
+ {
+  "family": "bricolage",
+  "weight": "800",
+  "file": "bricolage-800.woff2",
+  "kb": 75
+ },
+ {
+  "family": "inter",
+  "weight": "400",
+  "file": "inter-400.woff2",
+  "kb": 47
+ },
+ {
+  "family": "inter",
+  "weight": "500",
+  "file": "inter-500.woff2",
+  "kb": 47
+ },
+ {
+  "family": "inter",
+  "weight": "600",
+  "file": "inter-600.woff2",
+  "kb": 47
+ },
+ {
+  "family": "mono",
+  "weight": "400",
+  "file": "mono-400.woff2",
+  "kb": 30
+ },
+ {
+  "family": "mono",
+  "weight": "600",
+  "file": "mono-600.woff2",
+  "kb": 30
+ }
+]

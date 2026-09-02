@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shopping assistant — with Sentr</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="who">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="who-name">Shopping assistant</span>
+      <span class="who-sub" id="modelBadge"></span>
+    </div>
+
+    <div class="shield" id="shieldWrap">
+      <span class="shield-lab">Sentr</span>
+      <button class="switch" id="sentrSwitch" role="switch" aria-checked="false"
+              aria-label="Sentr protection">
+        <span class="knob"></span>
+      </button>
+      <span class="shield-state" id="shieldState">off</span>
+    </div>
+  </div>
+</header>
+
+<main class="thread" id="thread">
+  <div class="intro">
+    <h1>What are you shopping for?</h1>
+    <p>This assistant reads a merchant catalogue and completes the purchase for you.
+       Sentr sits between the two.</p>
+    <div class="chips" id="chips">
+      <button class="chip">I need a wireless charger for my phone, under Rs 1500</button>
+      <button class="chip">Find me wireless earbuds under Rs 2000</button>
+      <button class="chip">I want a USB-C cable</button>
+    </div>
+  </div>
+</main>
+
+<div class="composer-wrap">
+  <form class="composer" id="composer">
+    <input id="q" type="text" autocomplete="off" placeholder="Ask for something…" />
+    <button id="send" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+        <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor"
+              stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </form>
+  <p class="composer-note" id="statusNote"></p>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

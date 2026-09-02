@@ -1,0 +1,50 @@
+[
+  {
+    "product_id": "CHG-MAG",
+    "file": "img/CHG-MAG.jpg",
+    "photographer": "RORRY_ Official",
+    "photographer_url": "https://www.pexels.com/@rorry_-official-2161871573",
+    "source": "https://www.pexels.com/photo/minimalist-mobile-accessories-with-rorry-power-banks-38649173/",
+    "pexels_id": 38649173
+  },
+  {
+    "product_id": "CHG-HAL",
+    "file": "img/CHG-HAL.jpg",
+    "photographer": "Moni Rathnak",
+    "photographer_url": "https://www.pexels.com/@monirathnak",
+    "source": "https://www.pexels.com/photo/golden-box-on-table-19117855/",
+    "pexels_id": 19117855
+  },
+  {
+    "product_id": "CBL-USB",
+    "file": "img/CBL-USB.jpg",
+    "photographer": "Ruben Boekeloo",
+    "photographer_url": "https://www.pexels.com/@ruben-boekeloo-521336009",
+    "source": "https://www.pexels.com/photo/pendrive-on-white-background-18641665/",
+    "pexels_id": 18641665
+  },
+  {
+    "product_id": "EAR-TWS",
+    "file": "img/EAR-TWS.jpg",
+    "photographer": "I'm Zion",
+    "photographer_url": "https://www.pexels.com/@zion",
+    "source": "https://www.pexels.com/photo/crop-man-holding-earbuds-in-charging-case-4526407/",
+    "pexels_id": 4526407
+  },
+  {
+    "product_id": "SPK-BT",
+    "file": "img/SPK-BT.jpg",
+    "photographer": "Puru Raj",
+    "photographer_url": "https://www.pexels.com/@puruxraj",
+    "source": "https://www.pexels.com/photo/sleek-black-wireless-audio-device-on-white-33298190/",
+    "pexels_id": 33298190
+  },
+  {
+    "product_id": "STD-LAP",
+    "file": "img/STD-LAP.jpg",
+    "photographer": "Claire  L\u00f3",
+    "photographer_url": "https://www.pexels.com/@clairelo",
+    "source": "https://www.pexels.com/photo/switched-off-laptop-on-white-background-11982694/",
+    "pexels_id": 11982694
+  }
+]
