@@ -1,7 +1,7 @@
 # Sentr
 > Standing watch where your catalogue meets the AI buyer.
 
-A prompt-injection firewall for agent-readable merchant catalogues.
+A prompt-injection firewall for agent-readable merchant cataloguess.
 
 ---
 
