@@ -17,3 +17,9 @@ demo/.llm_cache/
 desktop.ini
 .DS_Store
 
+
+# trained weights (regenerate with: python -m sentr.train_classifier)
+models/
+
+# colab upload bundle (rebuild with: python notebooks/pack_for_colab.py)
+notebooks/sentr_colab.zip

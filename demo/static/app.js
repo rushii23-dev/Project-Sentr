@@ -132,8 +132,8 @@ function sentrChip(res) {
 
   if (res.sentr_enabled && !caught.length) {
     body.appendChild(el("p", null,
-      "The detector is still a Day 2 stub — it allows everything. The rule layer and " +
-      "classifier land on Day 3, which is when this run starts differing from the unprotected one."));
+      "Sentr screened every listing and found nothing to act on. On a clean catalogue " +
+      "that is the correct outcome — the run should look identical to the unprotected one."));
   }
 
   const tabs = el("div", "tabs");

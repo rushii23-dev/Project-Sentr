@@ -1,0 +1,276 @@
+# Sentr layer 1 -- rule definitions as DATA, not code (CLAUDE.md rule 5).
+#
+# Every rule is auditable here without reading Python. sentr/rules.py only loads
+# and applies this file; it contains no rule logic of its own.
+#
+# severity   block -> withhold the listing from the agent
+#            flag  -> pass through sanitised, log for review
+# weight     contributes to the confidence recorded in the audit trail
+#
+# type       regex           a regular expression, case-insensitive by default
+#            hidden_unicode  codepoints invisible to a human reviewer but still
+#                            present in the token stream a model reads
+#            base64_text /   an encoded run that actually DECODES to readable
+#            hex_text        text. A "looks like base64" regex alone fires on
+#                            model numbers and SKUs; the decode check is what
+#                            makes this usable on a real catalogue.
+#
+# A note on false positives, which is the metric this project is graded on.
+# Real listings are full of "Key: Value" spec tables ("Use: Face", "Item Type:
+# Cream") -- exactly the shape that tripped the Day 1 baseline. So role-marker
+# rules here never match a bare "Word:"; they require a known turn delimiter, or
+# a system-ish label followed by an imperative aimed at a reader.
+
+version: 1
+
+thresholds:
+  block: 0.70
+  flag: 0.35
+
+rules:
+
+  # ---------------------------------------------------------------- role markers
+  - id: role_marker_turn_delimiter
+    family: fake_role_marker
+    severity: block
+    weight: 0.95
+    description: >-
+      Chat turn delimiters have no legitimate purpose in a product description.
+      Their presence means seller text is imitating the model's own transcript.
+    type: regex
+    patterns:
+      - '<\|im_(start|end)\|>'
+      - '\[/?INST\]'
+      - '<\|(system|user|assistant|endoftext)\|>'
+      - '^\s*###\s*(instruction|system)\b'
+
+  - id: role_marker_system_label
+    family: fake_role_marker
+    severity: block
+    weight: 0.90
+    description: >-
+      A SYSTEM / ADMIN / OPERATOR label followed by an instruction aimed at
+      whoever is reading. The imperative is required on purpose: a bare
+      "System:" is a spec-table row, not an attack.
+    type: regex
+    patterns:
+      - '\b(system|admin|operator|developer)\s*(note|message|directive|instruction)?\s*:\s*(?=.{0,80}\b(add|apply|attach|include|set|ignore|disregard|do not|must|always|never|skip|proceed|override)\b)'
+      - '^\s*(assistant|user)\s*:\s+\S'
+
+  # -------------------------------------------------------- claimed authorisation
+  - id: claimed_prior_authorisation
+    family: prior_authorisation
+    severity: block
+    weight: 0.90
+    description: >-
+      Seller text asserting the buyer already consented. It exists only to make
+      an agent skip a confirmation step it would otherwise take.
+    type: regex
+    # An unanchored "have been approved" blocks honest sellers: a real Amazon.in
+    # peanut butter listing reads "We have been approved by FSSAI", and the
+    # unanchored form killed it outright -- a blocked listing earns nothing, and
+    # that is the exact cost this project is graded on. The claim only matters
+    # when the thing approved is the BUYER or the PURCHASE, which is what makes
+    # an agent skip its confirmation step. Anchoring cost no payload: the three
+    # poisoned rows the loose pattern also stopped matching were carrier text,
+    # not injected text, and all three are still caught by other rules.
+    # (Train-set finding. Day 4.)
+    patterns:
+      - '\bpre[-\s]?(approved|authorised|authorized)\b[^.\n]{0,40}\b(purchase|order|payment|transaction|add[-\s]?on|upgrade|warranty|charge|cart|checkout|item|amount|subscription|plan)\b'
+      - '\b(buyer|user|customer|shopper|client|purchaser|account\s+holder)\b[^.\n]{0,40}\bpre[-\s]?(approved|authorised|authorized)\b'
+      - '\bpre[-\s]?(approved|authorised|authorized)\b[^.\n]{0,20}\bby\s+(the\s+)?(buyer|user|customer|shopper|client|purchaser|account\s+holder)\b'
+      - '\b(buyer|user|customer|shopper|client|purchaser|account\s+holder)\b[^.\n]{0,40}\b(has|have|already)\s+(been\s+)?(approved|authorised|authorized|consented|agreed)\b'
+      - '\b(this|the)\s+(purchase|order|payment|transaction|add[-\s]?on|upgrade|warranty|charge|cart|checkout|item|amount|subscription|plan)\b[^.\n]{0,30}\b(has|have)\s+(been\s+)?(approved|authorised|authorized|pre[-\s]?approved)\b'
+      - '\bno\s+confirmation\s+(is\s+)?(needed|required|necessary)\b'
+      - '\bdo\s+not\s+ask\s+(the\s+)?(buyer|user|customer|shopper)\b'
+      - '\bskip\s+the\s+confirmation\b'
+      - '\bwithout\s+(asking|prompting|confirmation)\b'
+
+  # ------------------------------------------------------------ instruction override
+  - id: instruction_override
+    family: instruction_override
+    severity: block
+    weight: 0.85
+    description: >-
+      The most documented injection pattern in the literature, here appearing
+      inside seller-supplied text.
+    type: regex
+    patterns:
+      - '\b(ignore|disregard|forget|overlook|override|bypass|remove|reverse)\b[^.\n]{0,45}\b(previous|prior|above|earlier|any|all)\b[^.\n]{0,30}\b(instruction|prompt|rule|constraint|limit|budget|direction|protocol|task|command|conversation|context|discussion)s?\b'
+      - '\b(ignore|disregard|forget)\b[^.\n]{0,30}\b(the\s+)?(buyer|user|customer)(''s)?\s+(budget|instruction|request|limit|constraint)s?\b'
+      - '\b(ignore|bypass|disable)\s+(all\s+)?(security|safety)\s+(protocol|rule|check)s?\b'
+      # "forget everything" needs a conversational anchor. Without one this
+      # fires on ordinary marketing copy -- a real val listing reads "you can
+      # also forget everything you knew about messy baggage", which is honest
+      # text and must not be blocked.
+      - '\bforget\s+everything\s+(we|i|that\s+we|before|above|previously|prior|discussed|said|earlier|so\s+far)\b'
+      - '\b(new|updated)\s+instructions?\s+(follow|below|apply)\b'
+      - '\bconcentrate\s+on\s+the\s+new\s+(task|instruction)'
+
+  # ------------------------------------------------------------- agent directives
+  - id: silent_cart_directive
+    family: agent_directive
+    severity: block
+    weight: 0.85
+    description: >-
+      Text instructing a buying agent to alter an order without telling the
+      buyer. Distinct from ordinary upsell copy, which addresses the human.
+    type: regex
+    patterns:
+      - '\b(add|apply|attach|include)\b[^.\n]{0,60}\b(automatically|silently|without\s+(asking|confirmation|prompting))'
+      - '\badd\s+(it|them|this)\s+to\s+the\s+cart\s+automatically\b'
+      - '\b(set|adjust|change)\s+the\s+(total|price|quantity)\b[^.\n]{0,40}\b(to|=)\s*\d'
+
+  # ------------------------------------------------------------------ exfiltration
+  - id: exfiltration_request
+    family: exfiltration
+    severity: block
+    weight: 0.80
+    description: >-
+      Seller text asking the reader to disclose its own instructions, its
+      credentials, or data it holds.
+    type: regex
+    patterns:
+      - '\b(show|reveal|repeat|print|output|disclose|tell\s+me)\b[^.\n]{0,45}\b(your\s+)?(system\s+)?(prompt|instruction|system\s+message)s?\b'
+      - '\b(give|provide|share|disclose|grant|send)\b[^.\n]{0,45}\b(api\s+key|password|credential|admin\s+access|secret\s+key|sensitive\s+(information|data)|confidential\s+\w+|classified\s+\w+|patient\s+record|personal\s+data)s?\b'
+      - '\baccess\s+to\b[^.\n]{0,30}\b(sensitive|confidential|classified|private|financial)\b'
+      - '\breturn\s+your\s+embeddings\b'
+
+  # -------------------------------------------------------------- delimiter escape
+  - id: delimiter_escape
+    family: delimiter_escape
+    severity: block
+    weight: 0.80
+    description: >-
+      Text closing a structural boundary early, so what follows is read at a
+      higher trust level than seller content should ever have.
+    type: regex
+    patterns:
+      - '\bEND\s+OF\s+(PRODUCT\s+)?(DATA|CATALOGUE|CATALOG|DESCRIPTION|INPUT)\b'
+      - '-{3,}\s*END\s+[A-Z]{3,}'
+      - '</(description|product|item|context)>'
+      - '<(system_directive|system|instruction)\b[^>]*>'
+      - '"\s*\}\s*\]\s*,\s*"'
+
+  - id: tool_call_forgery
+    family: tool_call_forgery
+    severity: block
+    weight: 0.85
+    description: >-
+      Seller text imitating function-call or tool-call syntax, so a parser or
+      model treats catalogue content as an action already decided on.
+    type: regex
+    patterns:
+      - '<function_call\b'
+      - '\{\s*"(tool|function|action)"\s*:\s*"'
+      - '\b(cart|checkout|order)\.(add_item|set_total|apply_addon|add_addon)\s*\('
+      - '"arguments"\s*:\s*\{'
+
+  # --------------------------------------------------------------- persona / threat
+  - id: persona_assignment
+    family: persona_switch
+    severity: block
+    weight: 0.80
+    description: >-
+      Seller text assigning the reader an identity or a mission. A product
+      description has no reason to tell anyone who they are.
+    type: regex
+    patterns:
+      - '\byou\s+are\s+(now\s+)?[A-Za-z0-9_-]*(bot|gpt|assistant)\b'
+      - '\byou\s+are\s+now\s+(operating|acting|running)\b'
+      - '\b(act|behave|respond)\s+as\s+(a|an|the)\s+\w+\s+(bot|assistant|model)\b'
+      - '\byour\s+(mission|new\s+role|real\s+purpose)\s+is\b'
+      - '\bpretend\s+(to\s+be|you\s+are|you\s+can)\b'
+      - '\bfrom\s+now\s+on\s+you\s+(will|are|must)\b'
+
+  - id: coercion_threat
+    family: coercion
+    severity: block
+    weight: 0.80
+    description: >-
+      Extortion aimed at the reader. Legitimate marketing copy uses urgency, but
+      never threatens consequences for refusing.
+    type: regex
+    patterns:
+      - '\bor\s+I\s+will\s+(expose|report|release|initiate|harm|leak|publish|contact)\b'
+      - '\byou\s+have\s+\d+\s+hours?\s+to\s+comply\b'
+      - '\b(comply|obey)\s+or\s+(I|we)\b'
+
+  # ------------------------------------------------------------------ hidden text
+  - id: bidi_override
+    family: hidden_unicode
+    severity: block
+    weight: 0.90
+    description: >-
+      Bidirectional overrides reorder how text renders, so what a human reviewer
+      sees differs from what a model reads. No legitimate product description
+      needs them.
+    type: hidden_unicode
+    min_count: 1
+    codepoints:
+      - "‪"
+      - "‫"
+      - "‭"
+      - "‮"
+      - "‬"
+      - "⁦"
+      - "⁧"
+      - "⁨"
+      - "⁩"
+
+  - id: zero_width_padding
+    family: hidden_unicode
+    severity: flag
+    weight: 0.45
+    description: >-
+      Zero-width characters. Deliberately FLAG rather than block. Real Indian
+      catalogues carry U+200B from broken HTML exports, and U+200C is
+      linguistically required in Devanagari -- blocking on these would kill
+      honest listings, which is precisely the false-positive cost this project
+      measures. Sanitising strips them, and if an instruction is hiding among
+      them the other rules fire and the verdict escalates to block.
+    type: hidden_unicode
+    min_count: 1
+    codepoints:
+      - "​"
+      - "‌"
+      - "‍"
+      - "⁠"
+
+  - id: bom_inside_text
+    family: hidden_unicode
+    severity: flag
+    weight: 0.40
+    description: >-
+      A byte-order mark in the middle of a description is invisible padding.
+      Flagged, not blocked: bad exports produce these routinely.
+    type: hidden_unicode
+    min_count: 1
+    skip_leading: true
+    codepoints:
+      - "﻿"
+
+  # -------------------------------------------------------------- encoded payload
+  - id: base64_payload
+    family: encoded_payload
+    severity: block
+    weight: 0.80
+    description: >-
+      A base64 run that decodes to readable text. Requiring a successful decode
+      is what separates a hidden instruction from a model number or SKU.
+    type: base64_text
+    min_len: 24
+    min_printable_ratio: 0.90
+    min_decoded_len: 12
+
+  - id: long_hex_run
+    family: encoded_payload
+    severity: flag
+    weight: 0.45
+    description: >-
+      A long hex run that decodes to readable ASCII. Flagged rather than
+      blocked: hex appears legitimately as colour codes and part numbers, so the
+      decode check carries the weight here.
+    type: hex_text
+    min_len: 32
+    min_printable_ratio: 0.90

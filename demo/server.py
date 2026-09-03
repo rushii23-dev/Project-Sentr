@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -23,12 +24,28 @@ sys.path.insert(0, str(ROOT))
 
 from demo import agent as agent_mod  # noqa: E402
 from demo import checkout as checkout_mod  # noqa: E402
-from sentr import audit, pipeline  # noqa: E402
+from sentr import audit, classifier, pipeline  # noqa: E402
 
 STATIC = ROOT / "demo" / "static"
 RESULTS = ROOT / "eval" / "results"
 
-app = FastAPI(title="Sentr demo")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Load layer 2 before the first request, not during it.
+
+    The weights take tens of seconds to load on a memory-starved machine. Paying
+    that inside the first /api/run is how a live demo dies -- and it would also
+    put a one-off 40-second load into the latency the page displays.
+    """
+    c = classifier.shared()
+    if c.warm():
+        print(f"[sentr] classifier ready: {c.model_dir} thresholds={c.thresholds}")
+    else:
+        print(f"[sentr] no classifier at {c.model_dir} -- running on rules alone")
+    yield
+
+
+app = FastAPI(title="Sentr demo", lifespan=lifespan)
 
 
 @app.middleware("http")

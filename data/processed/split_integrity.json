@@ -1,0 +1,26 @@
+{
+  "pairs": {
+    "train|val": {
+      "shared_payload_strings": 0,
+      "substring_containments": 0,
+      "shared_listings": 0
+    },
+    "train|test": {
+      "shared_payload_strings": 0,
+      "substring_containments": 0,
+      "shared_listings": 0
+    },
+    "val|test": {
+      "shared_payload_strings": 0,
+      "substring_containments": 0,
+      "shared_listings": 0
+    }
+  },
+  "distinct_payloads": {
+    "train": 553,
+    "val": 184,
+    "test": 183
+  },
+  "verified": true,
+  "note": "No payload string appears in more than one split, by equality or containment, and no source listing is shared. Checked in memory at generation time; test.jsonl is never read."
+}

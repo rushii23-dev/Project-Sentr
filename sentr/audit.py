@@ -46,10 +46,19 @@ class AuditRecord:
     text_before: str = ""
     text_after: str = ""
     latency_ms: float = 0.0
+    # Split by layer, so the cost of the model is visible rather than buried in
+    # a single figure. Across a catalogue the classifier is batched, and its
+    # time is then the batch's cost divided by the listings in it -- the honest
+    # per-listing figure for bulk screening. Screening one listing on its own
+    # pays the whole thing, which is what single_item latency in the eval
+    # reports separately.
+    latency_rules_ms: float = 0.0
+    latency_classifier_ms: float = 0.0
+    sanitiser_notes: list[str] = field(default_factory=list)
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     )
-    sentr_version: str = "0.1.0-day2-stub"
+    sentr_version: str = "0.3.0-day4-rules+classifier"
 
     def __post_init__(self) -> None:
         if self.verdict not in VERDICTS:
