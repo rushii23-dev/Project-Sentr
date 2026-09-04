@@ -80,6 +80,22 @@ function type(node, text, ms = 850) {
   });
 }
 
+/* What this store actually sells, read off the catalogue rather than written
+   down here, so it stays true when the catalogue changes. */
+function categoryList() {
+  const seen = [];
+  for (const p of state.products) {
+    const c = (p.category || "").toLowerCase();
+    if (c && !seen.includes(c)) seen.push(c);
+  }
+  if (!seen.length) return "phone and desk accessories";
+  if (seen.length === 1) return seen[0];
+  // Naming all eight ends on the awkward ones ("...speakers, desk and cases").
+  // Five and a tail reads like a shop assistant rather than a database dump.
+  if (seen.length > 5) return `${seen.slice(0, 5).join(", ")} and more`;
+  return `${seen.slice(0, -1).join(", ")} and ${seen[seen.length - 1]}`;
+}
+
 /* ---------------- product rail ---------------- */
 function rail(products, heldIds, chosenId) {
   const r = el("div", "rail");
@@ -284,16 +300,19 @@ async function renderRun(col, res) {
   }
   await type(say, text, 700);
 
-  body.appendChild(rail(state.products, held, d.product_id));
-  await wait(200);
-
-  // No product chosen means the catalogue had no answer. Rendering a checkout
-  // card for nothing shows a Rs 0 total and reads as a crash; say so instead.
+  // No product chosen means the catalogue had no answer. Showing the shelf
+  // anyway is worse than showing nothing -- sixteen chargers under "we have no
+  // phones" reads as a broken page. Skip the rail and the checkout card, and
+  // say plainly what the store does carry.
   if (d.product_id && d.product && d.product.title) {
+    body.appendChild(rail(state.products, held, d.product_id));
+    await wait(200);
     await checkout(res, body);
   } else {
-    body.appendChild(el("div", "no-buy",
-      "Nothing was added to the cart — no listing in this catalogue answered the request."));
+    body.appendChild(el("div", "no-match",
+      `<strong>Sorry — we don't stock that.</strong>
+       <span>Nothing in this catalogue answered the request, so nothing was added
+       to the cart. This store carries ${esc(categoryList())}.</span>`));
   }
   await wait(160);
 

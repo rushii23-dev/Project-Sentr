@@ -446,10 +446,14 @@ pre.inspect mark{background:#F7D9D4;color:var(--alarm);font-weight:600;
   .shield-state{display:none}
 }
 
-/* Nothing matched. A checkout card for no product shows a Rs 0 total and reads
-   as a crash rather than an answer. */
-.no-buy{
-  margin-top:16px;font-size:13.5px;line-height:1.6;color:var(--muted);
+/* Nothing matched. Showing the shelf anyway -- sixteen chargers beneath "we
+   have no phones" -- reads as a broken page, so the rail and the checkout card
+   are both withheld and this stands in their place. */
+.no-match{
+  margin-top:16px;display:flex;flex-direction:column;gap:5px;
   background:var(--paper);border:1px dashed var(--line);
-  border-radius:var(--r-md);padding:12px 14px;
+  border-radius:var(--r-md);padding:15px 16px;
 }
+.no-match strong{font-family:var(--display);font-weight:600;font-size:15px;
+  letter-spacing:-.015em;color:var(--ink)}
+.no-match span{font-size:13.5px;line-height:1.6;color:var(--muted)}

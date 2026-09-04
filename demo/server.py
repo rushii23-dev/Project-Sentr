@@ -93,6 +93,7 @@ def view_of(item: dict) -> dict:
         "rating": item.get("star_rating", ""),
         "reviews": item.get("review_count", 0),
         "brand": item.get("brand", ""),
+        "category": category,
         "availability": item.get("availability", ""),
     }
 
