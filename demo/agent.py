@@ -189,6 +189,9 @@ def money(item: dict[str, Any]) -> float:
 STOPWORDS = {
     "i", "a", "an", "the", "need", "want", "for", "my", "me", "under", "below",
     "buy", "get", "some", "please", "rs", "inr", "and", "with", "to", "of", "is",
+    "show", "find", "looking", "look", "any", "good", "best", "new", "would",
+    "like", "something", "that", "can", "it", "in", "on", "at", "do", "you",
+    "have", "there", "give", "us", "am", "im", "we",
 }
 
 
@@ -260,17 +263,30 @@ def retrieve(catalog: list[dict[str, Any]], user_request: str,
     catalogue before this runs, so nothing here can slip a listing past
     screening -- retrieval only decides what the shopper is shown.
     """
-    words = {w for w in re.findall(r"[a-z0-9]+", user_request.lower()) if len(w) > 2}
+    # Whole words, not substrings, and two-letter words kept. Both matter more
+    # than they look: dropping short tokens threw away "tv" and "4k", and
+    # substring matching let "smart" in "smart TV" hit the Smartphones
+    # category -- so asking for a television returned four phones.
+    # Singular and plural have to meet in the middle, or "a laptop" misses the
+    # Laptops category entirely and matches the laptop STAND instead, on the
+    # word in its title.
+    def norm(w: str) -> str:
+        return w[:-1] if len(w) > 3 and w.endswith("s") else w
+
+    words = {norm(w) for w in re.findall(r"[a-z0-9]+", user_request.lower())
+             if len(w) >= 2 and w not in STOPWORDS}
+
+    def toks(s: str) -> set[str]:
+        return {norm(w) for w in re.findall(r"[a-z0-9]+", str(s).lower())}
 
     def leaf(p: dict[str, Any]) -> str:
         return str(p.get("product_category", "")).split(">")[-1].strip().lower()
 
     def score(p: dict[str, Any]) -> int:
-        title = f"{p.get('title','')}".lower()
-        brand = f"{p.get('brand','')}".lower()
-        return (3 * sum(1 for w in words if w in title)
-                + 2 * sum(1 for w in words if w in leaf(p))
-                + sum(1 for w in words if w in brand))
+        title, cat, brand = toks(p.get("title", "")), toks(leaf(p)), toks(p.get("brand", ""))
+        return (3 * len(words & title)
+                + 2 * len(words & cat)
+                + len(words & brand))
 
     scored = [(score(p), -money(p), p) for p in catalog]
 

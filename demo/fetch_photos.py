@@ -34,6 +34,15 @@ ROOT = Path(__file__).resolve().parent.parent
 IMG_DIR = ROOT / "demo" / "static" / "img"
 load_dotenv(ROOT / ".env")
 
+# Photographer names carry accents, and the Windows console is cp1252 by
+# default, so printing one raised UnicodeEncodeError and lost the download that
+# had already succeeded. Losing a fetch because of a progress message is a poor
+# trade; degrade the console instead.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 SIZE = 900
 API = "https://api.pexels.com/v1/search"
 
@@ -57,13 +66,59 @@ QUERIES: dict[str, tuple[str, int]] = {
     "CBL-USB": ("usb cable braided", 0),
     "CBL-FAST": ("usb type c cable", 2),
     "CBL-SHORT": ("charging cable coiled", 3),
-    # everything else
+    "CBL-PRO": ("cable charger black", 2),
+    # accessories
     "PWB-10K": ("power bank battery", 1),
     "HUB-7IN1": ("usb hub adapter", 0),
     "SPK-BT": ("bluetooth speaker", 0),
     "STD-LAP": ("laptop stand desk", 0),
-    "CBL-PRO": ("cable charger black", 2),
-    "CSE-PHN": ("phone case clear", 1),
+    "CSE-PHN": ("smartphone case back", 0),
+    # smartphones
+    "PHN-NOVA": ("smartphone on table", 0),
+    "PHN-AXIS": ("modern smartphone camera", 0),
+    "PHN-LITE": ("smartphone in hand", 1),
+    "PHN-MAX": ("smartphone screen display", 2),
+    # televisions
+    "TVS-43": ("television living room", 0),
+    "TVS-55": ("flat screen tv wall", 1),
+    "TVS-32": ("small television screen", 2),
+    "TVS-65": ("home theatre television", 3),
+    # laptops
+    "LAP-AIR": ("laptop on desk", 0),
+    "LAP-PRO": ("laptop workstation", 1),
+    "LAP-BUD": ("open laptop keyboard", 2),
+    "LAP-CHR": ("small laptop notebook", 3),
+    # headphones
+    "HPH-ANC": ("over ear headphones", 0),
+    "HPH-STU": ("studio headphones", 1),
+    "HPH-ONEAR": ("headphones on white", 2),
+    # smartwatches
+    "WCH-FIT": ("smartwatch on wrist", 0),
+    "WCH-AMO": ("smart watch display", 1),
+    "WCH-KID": ("digital watch strap", 2),
+    # tablets
+    "TAB-10": ("tablet device screen", 0),
+    "TAB-PRO": ("tablet with stylus", 1),
+    # monitors
+    "MON-24": ("computer monitor desk", 0),
+    "MON-27": ("widescreen monitor setup", 1),
+    # keyboards and mice
+    "KBD-MECH": ("mechanical keyboard", 0),
+    "KBD-COMBO": ("wireless keyboard white", 1),
+    "MSE-WL": ("computer mouse", 0),
+    # storage
+    "SSD-1TB": ("portable ssd drive", 0),
+    "PEN-128": ("usb flash drive", 1),
+    # cameras
+    "CAM-ACT": ("action camera", 0),
+    "CAM-WEB": ("webcam camera", 1),
+    # home
+    "APP-AIR": ("air purifier room", 0),
+    "APP-KET": ("electric kettle", 0),
+    "APP-VAC": ("vacuum cleaner home", 1),
+    # gaming
+    "GAM-PAD": ("game controller", 0),
+    "GAM-HED": ("gaming headset", 1),
 }
 
 

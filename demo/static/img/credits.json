@@ -80,6 +80,14 @@
     "query": "charging cable coiled"
   },
   {
+    "product_id": "CBL-PRO",
+    "file": "img/CBL-PRO.jpg",
+    "photographer": "Carlos Jairo",
+    "photographer_url": "https://www.pexels.com/@cjanimus",
+    "source": "https://www.pexels.com/photo/expensive-gadgets-on-a-black-surface-7989742/",
+    "query": "cable charger black"
+  },
+  {
     "product_id": "PWB-10K",
     "file": "img/PWB-10K.jpg",
     "photographer": "Amar  Preciado",
@@ -114,17 +122,281 @@
   {
     "product_id": "CSE-PHN",
     "file": "img/CSE-PHN.jpg",
-    "photographer": "Irina Iriser",
-    "photographer_url": "https://www.pexels.com/@iriser",
-    "source": "https://www.pexels.com/photo/photograph-of-iphone-surrounded-with-fairy-lights-1647978/",
-    "query": "phone case clear"
-  },
-  {
-    "product_id": "CBL-PRO",
-    "file": "img/CBL-PRO.jpg",
     "photographer": "Carlos Jairo",
     "photographer_url": "https://www.pexels.com/@cjanimus",
-    "source": "https://www.pexels.com/photo/expensive-gadgets-on-a-black-surface-7989742/",
-    "query": "cable charger black"
+    "source": "https://www.pexels.com/photo/an-expensive-cellphone-on-a-black-surface-7989741/",
+    "query": "smartphone case back"
+  },
+  {
+    "product_id": "PHN-NOVA",
+    "file": "img/PHN-NOVA.jpg",
+    "photographer": "Rovshan Nazirli",
+    "photographer_url": "https://www.pexels.com/@rovshan-nazirli-691066883",
+    "source": "https://www.pexels.com/photo/still-life-with-a-smart-phone-and-bandana-on-a-table-17984647/",
+    "query": "smartphone on table"
+  },
+  {
+    "product_id": "PHN-AXIS",
+    "file": "img/PHN-AXIS.jpg",
+    "photographer": "Phong Thanh",
+    "photographer_url": "https://www.pexels.com/@phong-thanh-3607237",
+    "source": "https://www.pexels.com/photo/collection-of-mobile-phones-on-wooden-surface-36680544/",
+    "query": "modern smartphone camera"
+  },
+  {
+    "product_id": "PHN-LITE",
+    "file": "img/PHN-LITE.jpg",
+    "photographer": "cottonbro CG studio",
+    "photographer_url": "https://www.pexels.com/@cottonbro-cg-studio",
+    "source": "https://www.pexels.com/photo/emoji-of-a-hand-using-a-phone-on-pink-background-8833420/",
+    "query": "smartphone in hand"
+  },
+  {
+    "product_id": "PHN-MAX",
+    "file": "img/PHN-MAX.jpg",
+    "photographer": "Jakub Zerdzicki",
+    "photographer_url": "https://www.pexels.com/@jakubzerdzicki",
+    "source": "https://www.pexels.com/photo/hand-holding-smartphone-with-blank-screen-30909364/",
+    "query": "smartphone screen display"
+  },
+  {
+    "product_id": "TVS-55",
+    "file": "img/TVS-55.jpg",
+    "photographer": "Hakim  Santoso",
+    "photographer_url": "https://www.pexels.com/@hakimsatoso",
+    "source": "https://www.pexels.com/photo/black-flat-screen-tv-on-brown-wooden-wall-9646752/",
+    "query": "flat screen tv wall"
+  },
+  {
+    "product_id": "TVS-32",
+    "file": "img/TVS-32.jpg",
+    "photographer": "Yusuf P",
+    "photographer_url": "https://www.pexels.com/@artyusufpatel",
+    "source": "https://www.pexels.com/photo/vintage-tv-in-room-12506515/",
+    "query": "small television screen"
+  },
+  {
+    "product_id": "TVS-65",
+    "file": "img/TVS-65.jpg",
+    "photographer": "The Ghazi",
+    "photographer_url": "https://www.pexels.com/@the-ghazi-2152398165",
+    "source": "https://www.pexels.com/photo/modern-living-room-interior-with-led-lighting-32326321/",
+    "query": "home theatre television"
+  },
+  {
+    "product_id": "LAP-AIR",
+    "file": "img/LAP-AIR.jpg",
+    "photographer": "Boris K.",
+    "photographer_url": "https://www.pexels.com/@borisk",
+    "source": "https://www.pexels.com/photo/monochrome-photo-of-coffe-beside-a-laptop-12200696/",
+    "query": "laptop on desk"
+  },
+  {
+    "product_id": "LAP-PRO",
+    "file": "img/LAP-PRO.jpg",
+    "photographer": "San Engineer",
+    "photographer_url": "https://www.pexels.com/@sanengineer",
+    "source": "https://www.pexels.com/photo/silver-macbook-pro-2659939/",
+    "query": "laptop workstation"
+  },
+  {
+    "product_id": "LAP-BUD",
+    "file": "img/LAP-BUD.jpg",
+    "photographer": "Pineapple Supply Co.",
+    "photographer_url": "https://www.pexels.com/@psco",
+    "source": "https://www.pexels.com/photo/top-view-of-laptop-beside-bowl-pineapple-and-spider-toy-211856/",
+    "query": "open laptop keyboard"
+  },
+  {
+    "product_id": "LAP-CHR",
+    "file": "img/LAP-CHR.jpg",
+    "photographer": "OVAN",
+    "photographer_url": "https://www.pexels.com/@knownasovan",
+    "source": "https://www.pexels.com/photo/black-and-white-laptop-computer-62689/",
+    "query": "small laptop notebook"
+  },
+  {
+    "product_id": "HPH-ANC",
+    "file": "img/HPH-ANC.jpg",
+    "photographer": "Sound On",
+    "photographer_url": "https://www.pexels.com/@sound-on",
+    "source": "https://www.pexels.com/photo/man-wearing-white-headphones-3394657/",
+    "query": "over ear headphones"
+  },
+  {
+    "product_id": "HPH-STU",
+    "file": "img/HPH-STU.jpg",
+    "photographer": "Saeed Khokhar",
+    "photographer_url": "https://www.pexels.com/@vip-foto",
+    "source": "https://www.pexels.com/photo/close-up-shot-of-white-headphones-on-a-white-surface-9058879/",
+    "query": "studio headphones"
+  },
+  {
+    "product_id": "HPH-ONEAR",
+    "file": "img/HPH-ONEAR.jpg",
+    "photographer": "Sound On",
+    "photographer_url": "https://www.pexels.com/@sound-on",
+    "source": "https://www.pexels.com/photo/white-headphones-3394653/",
+    "query": "headphones on white"
+  },
+  {
+    "product_id": "WCH-FIT",
+    "file": "img/WCH-FIT.jpg",
+    "photographer": "Connor Scott McManus",
+    "photographer_url": "https://www.pexels.com/@connorscottmcmanus",
+    "source": "https://www.pexels.com/photo/close-up-view-of-motivational-message-on-smartwatch-11677077/",
+    "query": "smartwatch on wrist"
+  },
+  {
+    "product_id": "WCH-AMO",
+    "file": "img/WCH-AMO.jpg",
+    "photographer": "Adrian Regeci",
+    "photographer_url": "https://www.pexels.com/@regeci",
+    "source": "https://www.pexels.com/photo/an-apple-watch-on-a-white-surface-12564670/",
+    "query": "smart watch display"
+  },
+  {
+    "product_id": "WCH-KID",
+    "file": "img/WCH-KID.jpg",
+    "photographer": "Mungai Mutugi",
+    "photographer_url": "https://www.pexels.com/@mungai-mutugi-3669723",
+    "source": "https://www.pexels.com/photo/close-up-shot-of-an-analog-wristwatch-6157408/",
+    "query": "digital watch strap"
+  },
+  {
+    "product_id": "TAB-10",
+    "file": "img/TAB-10.jpg",
+    "photographer": "Rovshan Nazirli",
+    "photographer_url": "https://www.pexels.com/@rovshan-nazirli-691066883",
+    "source": "https://www.pexels.com/photo/a-gray-apple-ipad-pro-18205642/",
+    "query": "tablet device screen"
+  },
+  {
+    "product_id": "TAB-PRO",
+    "file": "img/TAB-PRO.jpg",
+    "photographer": "Beyza Oruk",
+    "photographer_url": "https://www.pexels.com/@beyza-oruk-170981593",
+    "source": "https://www.pexels.com/photo/pictures-on-tablet-17803200/",
+    "query": "tablet with stylus"
+  },
+  {
+    "product_id": "MON-24",
+    "file": "img/MON-24.jpg",
+    "photographer": "Kenneth Surillo",
+    "photographer_url": "https://www.pexels.com/@kenzero14",
+    "source": "https://www.pexels.com/photo/colorful-home-office-with-computer-setup-and-lighting-29283981/",
+    "query": "computer monitor desk"
+  },
+  {
+    "product_id": "KBD-MECH",
+    "file": "img/KBD-MECH.jpg",
+    "photographer": "Alexandra Krainyukhova",
+    "photographer_url": "https://www.pexels.com/@alexakrain",
+    "source": "https://www.pexels.com/photo/photo-of-a-person-s-hands-holding-a-black-keyboard-8219211/",
+    "query": "mechanical keyboard"
+  },
+  {
+    "product_id": "KBD-COMBO",
+    "file": "img/KBD-COMBO.jpg",
+    "photographer": "Jilly Noble",
+    "photographer_url": "https://www.pexels.com/@jillyjillystudio",
+    "source": "https://www.pexels.com/photo/modern-pink-office-desk-with-iphone-mockup-29765810/",
+    "query": "wireless keyboard white"
+  },
+  {
+    "product_id": "MSE-WL",
+    "file": "img/MSE-WL.jpg",
+    "photographer": "Saeed Khokhar",
+    "photographer_url": "https://www.pexels.com/@vip-foto",
+    "source": "https://www.pexels.com/photo/close-up-shot-of-a-black-computer-mouse-on-a-white-surface-9058886/",
+    "query": "computer mouse"
+  },
+  {
+    "product_id": "SSD-1TB",
+    "file": "img/SSD-1TB.jpg",
+    "photographer": "ALOK DAS",
+    "photographer_url": "https://www.pexels.com/@alokkd1",
+    "source": "https://www.pexels.com/photo/memory-card-27742572/",
+    "query": "portable ssd drive"
+  },
+  {
+    "product_id": "PEN-128",
+    "file": "img/PEN-128.jpg",
+    "photographer": "Ruben Boekeloo",
+    "photographer_url": "https://www.pexels.com/@ruben-boekeloo-521336009",
+    "source": "https://www.pexels.com/photo/pendrive-on-white-background-18641665/",
+    "query": "usb flash drive"
+  },
+  {
+    "product_id": "CAM-WEB",
+    "file": "img/CAM-WEB.jpg",
+    "photographer": "miyou_ 77",
+    "photographer_url": "https://www.pexels.com/@miyou_-77-696995602",
+    "source": "https://www.pexels.com/photo/modern-tech-flat-lay-with-camera-and-watch-31696749/",
+    "query": "webcam camera"
+  },
+  {
+    "product_id": "APP-KET",
+    "file": "img/APP-KET.jpg",
+    "photographer": "Barbara Webb",
+    "photographer_url": "https://www.pexels.com/@texasgal51",
+    "source": "https://www.pexels.com/photo/photography-of-kettle-near-smoke-792615/",
+    "query": "electric kettle"
+  },
+  {
+    "product_id": "APP-VAC",
+    "file": "img/APP-VAC.jpg",
+    "photographer": "Alua Mussina",
+    "photographer_url": "https://www.pexels.com/@alua-mussina-2151523853",
+    "source": "https://www.pexels.com/photo/cozy-indoor-corridor-with-sunlit-cat-32888900/",
+    "query": "vacuum cleaner home"
+  },
+  {
+    "product_id": "GAM-PAD",
+    "file": "img/GAM-PAD.jpg",
+    "photographer": "Marcelo Verfe",
+    "photographer_url": "https://www.pexels.com/@marceloverfe",
+    "source": "https://www.pexels.com/photo/close-up-of-a-playstation-joystick-16070479/",
+    "query": "game controller"
+  },
+  {
+    "product_id": "GAM-HED",
+    "file": "img/GAM-HED.jpg",
+    "photographer": "Bruno Casttro",
+    "photographer_url": "https://www.pexels.com/@brunounreal",
+    "source": "https://www.pexels.com/photo/young-man-with-headphones-around-his-neck-10408397/",
+    "query": "gaming headset"
+  },
+  {
+    "product_id": "TVS-43",
+    "file": "img/TVS-43.jpg",
+    "photographer": "Pu\u0219ca\u0219 Adryan",
+    "photographer_url": "https://www.pexels.com/@pu-ca-adryan-163345030",
+    "source": "https://www.pexels.com/photo/a-modern-tv-stand-with-a-blue-wall-behind-it-28195650/",
+    "query": "television living room"
+  },
+  {
+    "product_id": "MON-27",
+    "file": "img/MON-27.jpg",
+    "photographer": "Pu\u0219ca\u0219 Adryan",
+    "photographer_url": "https://www.pexels.com/@pu-ca-adryan-163345030",
+    "source": "https://www.pexels.com/photo/minimalist-setup-office-27920699/",
+    "query": "widescreen monitor setup"
+  },
+  {
+    "product_id": "CAM-ACT",
+    "file": "img/CAM-ACT.jpg",
+    "photographer": "\u041e\u043b\u0435\u043a\u0441\u0430\u043d\u0434\u0440 \u0420\u0438\u0445\u043b\u0438\u0446\u044c\u043a\u0438\u0439",
+    "photographer_url": "https://www.pexels.com/@2158916920",
+    "source": "https://www.pexels.com/photo/military-photographer-in-action-outdoors-35680396/",
+    "query": "action camera"
+  },
+  {
+    "product_id": "APP-AIR",
+    "file": "img/APP-AIR.jpg",
+    "photographer": "Pu\u0219ca\u0219 Adryan",
+    "photographer_url": "https://www.pexels.com/@pu-ca-adryan-163345030",
+    "source": "https://www.pexels.com/photo/elegant-minimalist-chair-in-modern-indoor-setting-35589991/",
+    "query": "air purifier room"
   }
 ]
