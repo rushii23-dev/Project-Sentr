@@ -29,6 +29,7 @@ from sentr import audit, classifier, pipeline  # noqa: E402
 
 STATIC = ROOT / "demo" / "static"
 RESULTS = ROOT / "eval" / "results"
+RUNS = ROOT / "demo" / ".runs"          # transient demo output, gitignored
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -246,7 +247,12 @@ def run(req: RunRequest) -> JSONResponse:
     products = cat["feed"]
 
     tag = "on" if req.sentr_enabled else "off"
-    log_path = RESULTS / f"audit_run_{tag}.jsonl"
+    # Demo runs write to a scratch directory, not into eval/results/. The
+    # committed results are claims about measured evaluations; a file rewritten
+    # every time someone clicks a suggestion chip is not one of those, and
+    # having it tracked meant every demo run dirtied the working tree and
+    # blocked the next branch switch.
+    log_path = RUNS / f"audit_run_{tag}.jsonl"
     audit.clear(log_path)
 
     screened = pipeline.screen_catalog(

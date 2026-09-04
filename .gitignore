@@ -23,3 +23,6 @@ models/
 
 # colab upload bundle (rebuild with: python notebooks/pack_for_colab.py)
 notebooks/sentr_colab.zip
+
+# transient demo output -- rewritten on every run, not a committed claim
+demo/.runs/

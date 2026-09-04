@@ -210,7 +210,7 @@ function auditPanel(res) {
     body.className = "audit-body";
     body.innerHTML = `<pre class="inspect">${esc(JSON.stringify(recs, null, 2) || "[]")}</pre>`;
     body.appendChild(el("p", "audit-foot",
-      "Exactly what the pipeline appended to eval/results/audit_run_on.jsonl."));
+      "Exactly what the pipeline wrote for this run, line for line."));
   };
 
   const show = (which) => {
