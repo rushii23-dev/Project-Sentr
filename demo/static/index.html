@@ -18,11 +18,9 @@
 
     <div class="shield" id="shieldWrap">
       <span class="shield-lab">Sentr</span>
-      <button class="switch" id="sentrSwitch" role="switch" aria-checked="false"
-              aria-label="Sentr protection">
-        <span class="knob"></span>
-      </button>
-      <span class="shield-state" id="shieldState">off</span>
+      <span class="legend"><i class="sw off"></i>off</span>
+      <span class="legend"><i class="sw on"></i>on</span>
+      <span class="shield-state">both runs</span>
     </div>
   </div>
 </header>
@@ -31,7 +29,10 @@
   <div class="intro">
     <h1>What are you shopping for?</h1>
     <p>This assistant reads a merchant catalogue and completes the purchase for you.
-       Sentr sits between the two.</p>
+       Sentr sits between the two. Every request runs twice — unprotected and
+       protected — side by side.</p>
+    <p class="intro-prov">The demo catalogue is illustrative. The measured numbers come from
+       6,000 real Amazon.in and Flipkart listings.</p>
     <div class="chips" id="chips">
       <button class="chip">I need a wireless charger for my phone, under Rs 1500</button>
       <button class="chip">Find me wireless earbuds under Rs 2000</button>

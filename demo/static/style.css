@@ -245,3 +245,104 @@ pre.inspect mark{background:#F7D9D4;color:var(--alarm);font-weight:600;
   .intro h1{font-size:23px}
   .who-sub{display:none}
 }
+
+/* ================= side-by-side comparison =================
+   The two runs are the demo. They sit in one grid so the two totals are
+   readable together without scrolling between them. Below 900px the grid
+   collapses to one column and they stack, still in off-then-on order. */
+.thread > .turn.bot:has(.compare){max-width:1180px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;margin-top:6px}
+.col{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);overflow:hidden;min-width:0;
+  animation:rise .32s cubic-bezier(.2,.7,.3,1) both;
+}
+.col-off{border-color:#F0DAD6}
+.col-on{border-color:#DCDEEF}
+.col-h{
+  display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  padding:11px 15px;border-bottom:1px solid var(--line-soft);
+}
+.col-tag{
+  font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 8px;border-radius:99px;font-weight:600;
+}
+.col-tag.off{background:var(--alarm-soft);color:var(--alarm)}
+.col-tag.on{background:var(--indigo-soft);color:var(--indigo)}
+.col-sub{font-size:12px;color:var(--muted)}
+.col-body{padding:14px 15px 16px}
+.col-body .say{font-size:14px;line-height:1.6;white-space:pre-wrap}
+.col-body .rail{margin-top:12px;gap:8px}
+.col-body .pc{width:118px}
+.col-body .pc-t{font-size:12px}
+.col-body .co{margin-top:14px}
+
+/* the one line a judge should remember */
+.verdict-line{
+  margin:18px auto 0;max-width:760px;text-align:center;font-size:14.5px;
+  color:var(--muted);line-height:1.6;
+  border-top:1px solid var(--line);padding-top:14px;
+}
+.verdict-line strong{font-family:var(--display);color:var(--ink);font-weight:700}
+.verdict-line .d{display:block;margin-top:3px;color:var(--alarm);font-weight:600}
+
+/* header legend, replacing the old on/off switch */
+.legend{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.legend .sw{width:9px;height:9px;border-radius:3px;display:inline-block}
+.legend .sw.off{background:var(--alarm)}
+.legend .sw.on{background:var(--indigo)}
+
+/* ================= audit record =================
+   Track 2 asks for an audit trail, so it is a panel, not a disclosure
+   triangle. Open by default, with the triggering spans shown in place. */
+.audit{
+  margin-top:16px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:#FCFBF8;overflow:hidden;
+}
+.audit-h{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;
+  border-bottom:1px solid var(--line);background:var(--indigo-soft);
+}
+.audit.empty .audit-h{background:#F5F3EE}
+.audit-h .ico{width:14px;height:14px;flex:0 0 auto;color:var(--indigo)}
+.audit.empty .audit-h .ico{color:var(--faint)}
+.audit-t{font-family:var(--display);font-weight:600;font-size:13px;color:var(--indigo-ink)}
+.audit.empty .audit-t{color:var(--muted)}
+.audit-m{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.audit .tabs{padding:10px 12px 0;margin:0}
+.audit-body{padding:10px 12px 12px}
+.audit-none{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.audit-foot{margin:9px 0 0;font-size:11px;color:var(--faint);font-family:var(--mono);line-height:1.5}
+
+.dec{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card);
+  padding:9px 10px;margin-bottom:8px}
+.dec.block{border-color:#EFD3CE}
+.dec-h{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.v-badge{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;
+  font-weight:700;padding:2px 6px;border-radius:4px}
+.v-badge.block{background:var(--alarm);color:#fff}
+.v-badge.flag{background:var(--marigold);color:#fff}
+.dec-id{font-family:var(--mono);font-size:11.5px;font-weight:600}
+.dec-by,.dec-c{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.trigs{margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.trig{border-left:2px solid var(--alarm);padding-left:8px}
+.trig-rule{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);
+  text-transform:none;letter-spacing:.02em}
+.trig code{display:block;font-family:var(--mono);font-size:11px;line-height:1.5;
+  color:var(--alarm);background:var(--alarm-soft);border-radius:3px;padding:3px 6px;
+  margin-top:2px;word-break:break-word;white-space:pre-wrap}
+.audit pre.inspect{max-height:220px}
+
+@media (max-width:900px){
+  .compare{grid-template-columns:1fr}
+  .thread > .turn.bot:has(.compare){max-width:720px}
+}
+
+/* Provenance. The demo catalogue is invented so the attack is never pinned on a
+   real merchant; the measured rates are not. Saying which is which on screen
+   costs one quiet line and pre-empts the first question a judge would ask. */
+.provenance{
+  margin:12px auto 0;max-width:760px;text-align:center;
+  font-size:11.5px;line-height:1.55;color:var(--faint);
+}
+.intro-prov{font-size:12px!important;color:var(--faint);margin-top:-12px!important}
