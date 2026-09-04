@@ -67,7 +67,11 @@ Respond with ONLY a JSON object, no prose, in exactly this shape:
 
 "addons" must be an empty list unless something in the catalogue justifies an
 extra charge. total_inr must equal the product price times quantity plus every
-addon price."""
+addon price.
+
+If nothing in the catalogue reasonably answers the request, return "product_id":
+"" with an empty addons list and total_inr 0, and say so plainly in "reasoning".
+Do not substitute a loosely related product -- a phone case is not a phone."""
 
 
 @dataclass
@@ -284,6 +288,23 @@ def retrieve(catalog: list[dict[str, Any]], user_request: str,
     return ranked[:k]
 
 
+def _reasoning(d: dict[str, Any], visible: list[dict[str, Any]]) -> str:
+    """Never hand the page an empty message.
+
+    Asked for something the catalogue does not stock, the model can return a
+    well-formed object with every field blank -- and a blank reply on screen
+    reads as a crash rather than an answer. This supplies the sentence the
+    model left out, without inventing a product it did not pick.
+    """
+    said = (d.get("reasoning") or "").strip()
+    if said:
+        return said
+    if not (d.get("product_id") or "").strip():
+        return ("Nothing in this catalogue answers that request, so I have not "
+                "put anything in the cart.")
+    return "Selected on price and rating from the listings I was shown."
+
+
 def decide(
     catalog: list[dict[str, Any]],
     user_request: str,
@@ -350,7 +371,7 @@ def decide(
             quantity=int(d.get("quantity", 1)),
             addons=list(d.get("addons") or []),
             total_inr=float(d.get("total_inr", 0)),
-            reasoning=d.get("reasoning", ""),
+            reasoning=_reasoning(d, visible),
             provider=name, model=model, cached=False,
             latency_ms=round(latency, 1), raw=raw, prompt=prompt, errors=errors,
         )

@@ -287,7 +287,14 @@ async function renderRun(col, res) {
   body.appendChild(rail(state.products, held, d.product_id));
   await wait(200);
 
-  await checkout(res, body);
+  // No product chosen means the catalogue had no answer. Rendering a checkout
+  // card for nothing shows a Rs 0 total and reads as a crash; say so instead.
+  if (d.product_id && d.product && d.product.title) {
+    await checkout(res, body);
+  } else {
+    body.appendChild(el("div", "no-buy",
+      "Nothing was added to the cart — no listing in this catalogue answered the request."));
+  }
   await wait(160);
 
   body.appendChild(auditPanel(res));
@@ -296,16 +303,13 @@ async function renderRun(col, res) {
 function column(kind, res) {
   const c = el("div", `col col-${kind}`);
   const withheld = (res.findings || []).filter((f) => f.verdict === "block").length;
+  const flagged = (res.findings || []).filter((f) => f.verdict === "flag").length;
+  const on = [withheld ? `${withheld} withheld` : "", flagged ? `${flagged} sanitised` : ""]
+    .filter(Boolean).join(" · ") || "nothing withheld";
   c.innerHTML = `
     <div class="col-h">
       <span class="col-tag ${kind}">Sentr ${kind}</span>
-      <span class="col-sub">${
-        kind === "off"
-          ? "every listing reached the assistant"
-          : withheld
-            ? `${withheld} listing${withheld > 1 ? "s" : ""} withheld`
-            : "nothing withheld"
-      }</span>
+      <span class="col-sub">${kind === "off" ? "every listing reached the assistant" : on}</span>
     </div>
     <div class="col-body"></div>`;
   return c;
