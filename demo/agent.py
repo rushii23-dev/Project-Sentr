@@ -229,6 +229,61 @@ def _scripted(catalog: list[dict[str, Any]], user_request: str) -> tuple[str, li
     return json.dumps(payload), ["no provider key available; used scripted fallback"]
 
 
+RETRIEVE_K = 6
+
+
+def retrieve(catalog: list[dict[str, Any]], user_request: str,
+             k: int = RETRIEVE_K) -> list[dict[str, Any]]:
+    """The shortlist the agent actually reasons over.
+
+    A real agentic storefront retrieves. ChatGPT is not handed a merchant's
+    entire catalogue -- it searches, then reasons over what comes back. Pasting
+    every listing into the prompt was a shortcut that made the demo *less* like
+    the system it is modelling, and it also measurably changed the outcome:
+    scored over five trials, the injection landed 4/4 times at six products and
+    1/5 at fifteen. More unrelated listings dilute the instruction.
+
+    That dilution is a real property worth knowing, and it is reported in the
+    README rather than quietly exploited. It is not a defence a merchant can
+    rely on: it varies by model, by run, and by how many products happen to
+    match the shopper's query. Retrieval is where the shortlist gets small
+    again, which is exactly where injection is most potent.
+
+    Scoring is deliberately simple, but it is category-first: plain token
+    overlap sent a shopper asking for "wireless earbuds" a wireless CHARGER,
+    because "wireless" matches both. So the strongest-scoring category wins
+    first, and only then are the remaining slots filled. Sentr screens the WHOLE
+    catalogue before this runs, so nothing here can slip a listing past
+    screening -- retrieval only decides what the shopper is shown.
+    """
+    words = {w for w in re.findall(r"[a-z0-9]+", user_request.lower()) if len(w) > 2}
+
+    def leaf(p: dict[str, Any]) -> str:
+        return str(p.get("product_category", "")).split(">")[-1].strip().lower()
+
+    def score(p: dict[str, Any]) -> int:
+        title = f"{p.get('title','')}".lower()
+        brand = f"{p.get('brand','')}".lower()
+        return (3 * sum(1 for w in words if w in title)
+                + 2 * sum(1 for w in words if w in leaf(p))
+                + sum(1 for w in words if w in brand))
+
+    scored = [(score(p), -money(p), p) for p in catalog]
+
+    # Which category is the shopper actually asking about?
+    totals: dict[str, int] = {}
+    for s, _neg, p in scored:
+        totals[leaf(p)] = totals.get(leaf(p), 0) + s
+    best = max(totals, key=lambda c: totals[c]) if totals else ""
+
+    def rank(item):
+        s, neg, p = item
+        return (leaf(p) == best and totals.get(best, 0) > 0, s, neg)
+
+    ranked = [p for _s, _n, p in sorted(scored, key=rank, reverse=True)]
+    return ranked[:k]
+
+
 def decide(
     catalog: list[dict[str, Any]],
     user_request: str,
@@ -243,7 +298,7 @@ def decide(
     """
     visible = [
         {k: v for k, v in p.items() if not k.startswith("_")}
-        for p in catalog
+        for p in retrieve(catalog, user_request)
     ]
     prompt = (
         f"User request: {user_request}\n\n"

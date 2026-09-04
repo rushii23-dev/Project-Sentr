@@ -16,12 +16,20 @@
     "pexels_id": 19117855
   },
   {
-    "product_id": "CBL-USB",
-    "file": "img/CBL-USB.jpg",
-    "photographer": "Ruben Boekeloo",
-    "photographer_url": "https://www.pexels.com/@ruben-boekeloo-521336009",
-    "source": "https://www.pexels.com/photo/pendrive-on-white-background-18641665/",
-    "pexels_id": 18641665
+    "product_id": "CHG-DUO",
+    "file": "img/CHG-DUO.jpg",
+    "photographer": "NITIN CHAUHAN",
+    "photographer_url": "https://www.pexels.com/@photographwithart",
+    "source": "https://www.pexels.com/photo/seats-near-telephone-booth-16593801/",
+    "query": "phone charging stand"
+  },
+  {
+    "product_id": "CHG-PUCK",
+    "file": "img/CHG-PUCK.jpg",
+    "photographer": "Puru Raj",
+    "photographer_url": "https://www.pexels.com/@puruxraj",
+    "source": "https://www.pexels.com/photo/sleek-black-wireless-audio-device-on-white-33298190/",
+    "query": "wireless charger minimal"
   },
   {
     "product_id": "EAR-TWS",
@@ -30,6 +38,62 @@
     "photographer_url": "https://www.pexels.com/@zion",
     "source": "https://www.pexels.com/photo/crop-man-holding-earbuds-in-charging-case-4526407/",
     "pexels_id": 4526407
+  },
+  {
+    "product_id": "EAR-BUD",
+    "file": "img/EAR-BUD.jpg",
+    "photographer": "Sound On",
+    "photographer_url": "https://www.pexels.com/@sound-on",
+    "source": "https://www.pexels.com/photo/close-up-photo-of-woman-wearing-grey-sweater-3756985/",
+    "query": "earbuds charging case"
+  },
+  {
+    "product_id": "EAR-CLIP",
+    "file": "img/EAR-CLIP.jpg",
+    "photographer": "Sound On",
+    "photographer_url": "https://www.pexels.com/@sound-on",
+    "source": "https://www.pexels.com/photo/photo-of-woman-wearing-white-headphones-3756912/",
+    "query": "earphones white background"
+  },
+  {
+    "product_id": "CBL-USB",
+    "file": "img/CBL-USB.jpg",
+    "photographer": "Ruben Boekeloo",
+    "photographer_url": "https://www.pexels.com/@ruben-boekeloo-521336009",
+    "source": "https://www.pexels.com/photo/pendrive-on-white-background-18641665/",
+    "pexels_id": 18641665
+  },
+  {
+    "product_id": "CBL-FAST",
+    "file": "img/CBL-FAST.jpg",
+    "photographer": "Steve A Johnson",
+    "photographer_url": "https://www.pexels.com/@steve",
+    "source": "https://www.pexels.com/photo/black-and-white-smartphone-947407/",
+    "query": "usb type c cable"
+  },
+  {
+    "product_id": "CBL-SHORT",
+    "file": "img/CBL-SHORT.jpg",
+    "photographer": "Sirius Df",
+    "photographer_url": "https://www.pexels.com/@sirius-df-440758016",
+    "source": "https://www.pexels.com/photo/close-up-of-modern-computer-hardware-device-34956927/",
+    "query": "charging cable coiled"
+  },
+  {
+    "product_id": "PWB-10K",
+    "file": "img/PWB-10K.jpg",
+    "photographer": "Amar  Preciado",
+    "photographer_url": "https://www.pexels.com/@amar",
+    "source": "https://www.pexels.com/photo/drone-parts-and-camera-over-a-wooden-table-12504497/",
+    "query": "power bank battery"
+  },
+  {
+    "product_id": "HUB-7IN1",
+    "file": "img/HUB-7IN1.jpg",
+    "photographer": "I'm Zion",
+    "photographer_url": "https://www.pexels.com/@zion",
+    "source": "https://www.pexels.com/photo/a-smartphone-on-a-notebook-4765366/",
+    "query": "usb hub adapter"
   },
   {
     "product_id": "SPK-BT",
@@ -46,5 +110,21 @@
     "photographer_url": "https://www.pexels.com/@clairelo",
     "source": "https://www.pexels.com/photo/switched-off-laptop-on-white-background-11982694/",
     "pexels_id": 11982694
+  },
+  {
+    "product_id": "CSE-PHN",
+    "file": "img/CSE-PHN.jpg",
+    "photographer": "Irina Iriser",
+    "photographer_url": "https://www.pexels.com/@iriser",
+    "source": "https://www.pexels.com/photo/photograph-of-iphone-surrounded-with-fairy-lights-1647978/",
+    "query": "phone case clear"
+  },
+  {
+    "product_id": "CBL-PRO",
+    "file": "img/CBL-PRO.jpg",
+    "photographer": "Carlos Jairo",
+    "photographer_url": "https://www.pexels.com/@cjanimus",
+    "source": "https://www.pexels.com/photo/expensive-gadgets-on-a-black-surface-7989742/",
+    "query": "cable charger black"
   }
 ]

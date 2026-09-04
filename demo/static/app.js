@@ -33,17 +33,14 @@ async function boot() {
   ]);
   state.products = cat.products;
 
-  const p = status.providers || {};
-  const live = p.groq ? "Groq" : p.gemini ? "Gemini" : null;
-  $("modelBadge").textContent = live ? `· ${live}` : "· scripted (no LLM key)";
-
-  const bits = [];
-  bits.push(p.groq ? "Groq connected" : "Groq: no key");
-  bits.push(p.gemini ? "Gemini connected" : "Gemini: no key");
-  bits.push(status.razorpay ? "Razorpay test mode" : "Razorpay: orders simulated");
-  const names = [...new Set((status.photo_credits || []).map((c) => c.photographer))];
-  $("statusNote").textContent =
-    bits.join(" · ") + (names.length ? ` · photos via Pexels: ${names.join(", ")}` : "");
+  // Deliberately not naming providers or services on screen. Which model
+  // answers is an implementation detail, and a footer listing vendor names
+  // reads like a credits roll rather than a storefront. Whether a real model
+  // was called at all is still disclosed -- in the reply itself, where it
+  // actually matters (see `is_evidence` below).
+  $("statusNote").textContent = status.razorpay
+    ? "Razorpay test mode — no real money moves."
+    : "Orders are simulated — no real money moves.";
 
   document.querySelectorAll(".chip").forEach((c) =>
     c.addEventListener("click", () => {
