@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-03T17:16:37+00:00",
+  "run_at": "2026-09-03T18:34:34+00:00",
   "tag": "day4_rules_only",
   "layers": "rules (1) + sanitiser (3) only",
   "classifier_model_dir": "D:\\Project Sentr\\models\\sentr-classifier",
@@ -16,6 +16,9 @@
         "poisoned": 1659,
         "classifier_available": false,
         "recall_pct": 86.6,
+        "neutralised_recall_pct": 86.4,
+        "attacks_neutralised": 1434,
+        "note_on_recall": "recall_pct = detected (any verdict but allow). neutralised_recall_pct = the payload does not reach the buying agent, because the listing was withheld or the span was sanitised out. The second is the one that describes what the agent is protected from; the gap between them is listings we flagged for review but still handed over.",
         "precision_pct": 100.0,
         "false_positive_rate_any_pct": 0.0,
         "false_positive_rate_blocked_pct": 0.0,
@@ -124,13 +127,13 @@
           }
         },
         "latency_ms": {
-          "rules_p50": 1.081,
-          "rules_p95": 4.272,
+          "rules_p50": 1.261,
+          "rules_p95": 4.209,
           "classifier_p50_batched": 0.0,
-          "total_p50": 1.081
+          "total_p50": 1.261
         },
-        "throughput_listings_per_sec": 309.5,
-        "wall_seconds": 17.0,
+        "throughput_listings_per_sec": 289.4,
+        "wall_seconds": 18.2,
         "false_positive_detail": [],
         "miss_detail": [
           {
@@ -310,8 +313,8 @@
           }
         ],
         "single_item_latency": {
-          "p50_ms": 1.7,
-          "p95_ms": 4.3,
+          "p50_ms": 1.9,
+          "p95_ms": 3.3,
           "n": 50
         }
       }
@@ -323,6 +326,9 @@
         "poisoned": 552,
         "classifier_available": false,
         "recall_pct": 86.4,
+        "neutralised_recall_pct": 86.4,
+        "attacks_neutralised": 477,
+        "note_on_recall": "recall_pct = detected (any verdict but allow). neutralised_recall_pct = the payload does not reach the buying agent, because the listing was withheld or the span was sanitised out. The second is the one that describes what the agent is protected from; the gap between them is listings we flagged for review but still handed over.",
         "precision_pct": 99.6,
         "false_positive_rate_any_pct": 0.167,
         "false_positive_rate_blocked_pct": 0.0,
@@ -431,13 +437,13 @@
           }
         },
         "latency_ms": {
-          "rules_p50": 1.063,
-          "rules_p95": 4.37,
+          "rules_p50": 1.241,
+          "rules_p95": 4.384,
           "classifier_p50_batched": 0.0,
-          "total_p50": 1.063
+          "total_p50": 1.241
         },
-        "throughput_listings_per_sec": 307.5,
-        "wall_seconds": 5.7,
+        "throughput_listings_per_sec": 282.7,
+        "wall_seconds": 6.2,
         "false_positive_detail": [
           {
             "listing_id": "amzin-6e7fc301ac50",
@@ -630,8 +636,8 @@
           }
         ],
         "single_item_latency": {
-          "p50_ms": 2.5,
-          "p95_ms": 6.3,
+          "p50_ms": 2.2,
+          "p95_ms": 4.7,
           "n": 50
         }
       }

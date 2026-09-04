@@ -1,0 +1,20 @@
+{
+  "what": "Every read of data/processed/test.jsonl by eval/final_eval.py.",
+  "why": "A held-out set is only held out if you can show how often it was looked at. This file is the evidence.",
+  "openings": [
+    {
+      "opened_at": "2026-09-04T05:17:41+00:00",
+      "git_commit": "0fba9d83fd29135eaabba19d7a217fc52f918ac8",
+      "config": {
+        "layers": "rules + sanitiser only",
+        "classifier_available": false,
+        "classifier_model_dir": "D:\\Project Sentr\\models\\sentr-classifier",
+        "classifier_thresholds": null,
+        "classifier_base": null,
+        "baseline_scored": true
+      },
+      "reason": "first and intended opening (Day 5)"
+    }
+  ],
+  "times_opened": 1
+}

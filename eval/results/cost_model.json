@@ -1,0 +1,57 @@
+{
+  "run_at": "2026-09-04T05:22:07+00:00",
+  "source_results": "eval/results/day5_final.json",
+  "split": "test",
+  "formula": "monthly cost = blocked_FPR x listings x conversion_rate x AOV",
+  "assumptions": {
+    "listings": 50000,
+    "conversion_rate": 0.02,
+    "average_order_value_inr": 1200.0
+  },
+  "assumption_notes": {
+    "listings": "catalogue listings screened per month; mid-size Indian merchant",
+    "conversion_rate": "orders per listing per month, blended across the catalogue",
+    "average_order_value_inr": "average order value; near the demo catalogue's own prices"
+  },
+  "detectors": [
+    {
+      "detector": "Sentr [rules + sanitiser only]",
+      "benign_listings_measured": 1200,
+      "blocked_false_positives": 0,
+      "flagged_but_still_selling": 1,
+      "blocked_fpr_pct": 0.0,
+      "blocked_fpr_95ci_pct": [
+        0.0,
+        0.3191
+      ],
+      "monthly_cost_inr": 0,
+      "monthly_cost_inr_95ci": [
+        0,
+        3829
+      ],
+      "annual_cost_inr": 0,
+      "annual_cost_inr_upper_bound": 45952
+    },
+    {
+      "detector": "Baseline (protectai/deberta-v3-base-prompt-injection)",
+      "benign_listings_measured": 1200,
+      "blocked_false_positives": 1,
+      "flagged_but_still_selling": 0,
+      "blocked_fpr_pct": 0.0833,
+      "blocked_fpr_95ci_pct": [
+        0.0147,
+        0.4705
+      ],
+      "monthly_cost_inr": 1000,
+      "monthly_cost_inr_95ci": [
+        177,
+        5646
+      ],
+      "annual_cost_inr": 12000,
+      "annual_cost_inr_upper_bound": 67757
+    }
+  ],
+  "note_flag_vs_block": "Only blocked listings are priced. A flagged listing is sanitised and still sells, so it carries review cost, not lost revenue. The baseline is binary and has no flag path, so every false positive it produces is priced as a block.",
+  "note_interval": "Wilson 95% intervals. Zero false positives in a sample of this size is not a zero rate; the upper bound is the figure to budget against. The interval covers sampling error only -- it says nothing about listings unlike the ones sampled.",
+  "note_not_priced": "The cost of a MISSED attack is not priced here. It is not a rate times a margin: it is an unauthorised charge on a real buyer, plus the chargeback and the trust. Recall is reported separately and deliberately not converted into rupees, because a number that small would understate it."
+}

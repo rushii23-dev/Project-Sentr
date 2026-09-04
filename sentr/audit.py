@@ -58,7 +58,11 @@ class AuditRecord:
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     )
-    sentr_version: str = "0.3.0-day4-rules+classifier"
+    # The shipped configuration is layers 1 and 3. The classifier slot is
+    # implemented but deliberately empty (eval/results/layer2_decision.json);
+    # the version string should say what actually ran, not what exists in the
+    # repository.
+    sentr_version: str = "0.4.0-day5-rules+sanitiser"
 
     def __post_init__(self) -> None:
         if self.verdict not in VERDICTS:

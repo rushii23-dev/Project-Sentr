@@ -140,7 +140,10 @@ def screen_catalog(
             else:
                 decided_by = "rules+classifier_clean"
         elif model is not None and not model.available and verdict == "allow":
-            decided_by = "rules_clean_classifier_unavailable"
+            # Not a fault. The classifier slot is empty by decision -- see
+            # eval/results/layer2_decision.json -- so say that rather than
+            # implying something failed to load.
+            decided_by = "rules_clean_no_classifier"
 
         screened.append(
             _finish(listing, texts[i], verdict, confidence, decided_by,
