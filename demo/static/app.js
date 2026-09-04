@@ -396,7 +396,174 @@ async function send() {
   $("q").focus();
 }
 
+/* ---------------- evidence panel ----------------
+   The numbers come from /api/metrics, which reads eval/results/. Nothing here
+   is typed in by hand, so the page cannot drift away from the committed
+   claims it is summarising. */
+const pct = (v) => (v == null ? "—" : `${v}%`);
+
+async function evidencePanel() {
+  const m = await fetch("/api/metrics").then((r) => r.json());
+  const p = el("section", "evidence");
+  if (!m.available) {
+    p.innerHTML = `<div class="ev-h"><span class="ev-t">Evidence</span></div>
+      <div class="ev-body"><p class="ev-note">${esc(m.why || "results not found")}</p></div>`;
+    return p;
+  }
+
+  const row = (label, a, b, hint) => `
+    <tr><td>${esc(label)}${hint ? `<span class="hint">${esc(hint)}</span>` : ""}</td>
+      <td class="num win">${a}</td><td class="num">${b}</td></tr>`;
+
+  const cost = m.cost && m.cost.detectors ? m.cost.detectors : [];
+  const ours = cost[0], theirs = cost[1];
+
+  p.innerHTML = `
+    <div class="ev-h">
+      <span class="ev-t">Held-out results</span>
+      <span class="ev-m">${m.n.toLocaleString("en-IN")} listings · ${m.benign.toLocaleString("en-IN")} real, ${m.poisoned} poisoned</span>
+    </div>
+    <div class="ev-body">
+      <p class="ev-lede">Split off before any detection code was written, and opened
+        <strong>exactly ${m.opened_times === 1 ? "once" : `${m.opened_times} times`}</strong>
+        — at commit <code>${esc(m.commit)}</code>. Nothing was tuned afterwards.</p>
+      <div class="tbl-wrap">
+        <table class="ev-tbl">
+          <thead><tr><th></th><th>Sentr</th><th>Public guardrail</th></tr></thead>
+          <tbody>
+            ${row("Attacks detected", pct(m.sentr.recall_pct), pct(m.baseline?.recall_pct))}
+            ${row("Attacks neutralised", pct(m.sentr.neutralised_pct), pct(m.baseline?.neutralised_pct),
+                  "payload never reaches the agent")}
+            ${row("Honest listings blocked",
+                  `${m.sentr.blocked_false_positives} of ${m.benign.toLocaleString("en-IN")}`,
+                  `${m.baseline ? m.baseline.blocked_false_positives : "—"} of ${m.benign.toLocaleString("en-IN")}`,
+                  "the only false positive that costs money")}
+            ${row("Precision", pct(m.sentr.precision_pct), pct(m.baseline?.precision_pct))}
+            ${row("Throughput",
+                  m.sentr.throughput ? `${m.sentr.throughput}/sec` : "—",
+                  m.baseline?.throughput ? `${m.baseline.throughput}/sec` : "not recorded")}
+            ${ours && theirs ? row("False positives, per month",
+                  `₹${ours.monthly_inr.toLocaleString("en-IN")}`,
+                  `₹${theirs.monthly_inr.toLocaleString("en-IN")}`,
+                  "at the stated assumptions") : ""}
+          </tbody>
+        </table>
+      </div>
+      ${ours ? `<p class="ev-note"><strong>On the money figure:</strong> zero false
+        positives in ${m.benign.toLocaleString("en-IN")} listings is not a zero rate, so the
+        pessimistic bound is published too — up to ₹${ours.monthly_upper_inr.toLocaleString("en-IN")}
+        a month at the 95% interval. Assumptions:
+        ${m.cost.assumptions.listings.toLocaleString("en-IN")} listings/month ×
+        ${m.cost.assumptions.conversion_rate} conversion ×
+        ₹${m.cost.assumptions.average_order_value_inr.toLocaleString("en-IN")} order value.</p>` : ""}
+      ${(m.corrections || []).map((c) => `<p class="ev-note warn"><strong>Correction:</strong> ${esc(c)}</p>`).join("")}
+      <p class="ev-src">Read live from <code>eval/results/day5_final.json</code> and
+        <code>cost_model.json</code> — the committed files that hold these claims.</p>
+    </div>`;
+  return p;
+}
+
+/* ---------------- screen-your-own panel ----------------
+   The same pipeline the catalogue runs through. The point is that a visitor can
+   check the verdict on text they wrote themselves, which is the only way to
+   tell a real detector from a rehearsed one. */
+function screenPanel() {
+  const p = el("section", "screener");
+  p.innerHTML = `
+    <div class="ev-h">
+      <span class="ev-t">Screen a listing</span>
+      <span class="ev-m">same pipeline, no demo mode</span>
+    </div>
+    <div class="ev-body">
+      <p class="ev-lede">Write a product description — honest or hostile — and see what
+        Sentr does with it. Every verdict points at the exact characters that caused it.</p>
+      <label class="fld"><span>Title</span>
+        <input id="scTitle" type="text" autocomplete="off"
+               value="TrailMate 20000mAh Power Bank"></label>
+      <label class="fld"><span>Description</span>
+        <textarea id="scDesc" rows="5">20000mAh power bank with 65W USB-C output, enough to charge a laptop. Recharges in 2 hours. Airline safe.</textarea></label>
+      <div class="fld-row">
+        <button class="scBtn" id="scGo" type="button">Screen it</button>
+        <span class="fld-hint" id="scHint">Rules run in about a millisecond.</span>
+      </div>
+      <div id="scOut"></div>
+    </div>`;
+
+  const out = () => p.querySelector("#scOut");
+  p.querySelector("#scGo").onclick = async () => {
+    const btn = p.querySelector("#scGo");
+    btn.disabled = true;
+    out().innerHTML = `<p class="ev-note">Screening…</p>`;
+    let r;
+    try {
+      r = await fetch("/api/screen", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: p.querySelector("#scTitle").value,
+          description: p.querySelector("#scDesc").value,
+        }),
+      }).then((x) => x.json());
+    } catch {
+      out().innerHTML = `<p class="ev-note warn">The server stopped responding.</p>`;
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    if (r.error) {
+      out().innerHTML = `<p class="ev-note warn">${esc(r.error)}</p>`;
+      return;
+    }
+
+    const verdictLine = {
+      block: "Withheld. This never reaches the buying agent.",
+      flag: "Passed through sanitised, and logged for review — the listing still sells.",
+      allow: "Clean. Passed through unchanged.",
+    }[r.verdict];
+
+    const trig = (r.triggers || []).map((t) => `
+      <div class="trig"><span class="trig-rule">${esc(t.layer)} · ${esc(t.rule_id)}</span>
+        <code>${esc(t.span)}</code></div>`).join("");
+
+    out().innerHTML = `
+      <div class="sc-res ${esc(r.verdict)}">
+        <div class="sc-h">
+          <span class="v-badge ${esc(r.verdict)}">${esc(r.verdict)}</span>
+          <span class="sc-say">${esc(verdictLine)}</span>
+        </div>
+        <div class="sc-meta">
+          decided by <strong>${esc(r.decided_by)}</strong> ·
+          confidence ${r.confidence} ·
+          ${r.chars} characters in ${r.latency_ms} ms
+        </div>
+        ${trig ? `<div class="trigs">${trig}</div>`
+               : `<p class="ev-note">No rule fired. On a clean listing that is the
+                   correct outcome — and it is also what 13.1% of attacks get,
+                   which the README does not hide.</p>`}
+        ${r.sanitized ? `<div class="diff">
+            <div class="diff-h">What the agent would have read, after sanitising</div>
+            <pre class="inspect">${esc(r.text_after)}</pre>
+            ${(r.sanitiser_notes || []).map((n) => `<p class="ev-note">${esc(n)}</p>`).join("")}
+          </div>` : ""}
+      </div>`;
+  };
+  return p;
+}
+
+/* ---------------- panel plumbing ---------------- */
+async function showPanel(kind) {
+  if (state.busy) return;
+  document.querySelector(".intro")?.remove();
+  const t = turn("bot");
+  t.appendChild(el("div", "status", `<span class="spinner"></span><span>Loading…</span>`));
+  const node = kind === "evidence" ? await evidencePanel() : screenPanel();
+  t.innerHTML = "";
+  t.appendChild(node);
+  toBottom();
+}
+
 /* ---------------- wiring ---------------- */
 $("composer").addEventListener("submit", (e) => { e.preventDefault(); send(); });
+$("btnEvidence").addEventListener("click", () => showPanel("evidence"));
+$("btnScreen").addEventListener("click", () => showPanel("screen"));
 
 boot();

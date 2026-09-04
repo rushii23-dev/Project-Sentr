@@ -378,6 +378,23 @@ record is on screen, not behind a link: the verdict, the deciding layer, the
 confidence, and the exact characters that triggered it. The agent buys an honest
 listing instead, and in all three cases it costs the shopper *less*.
 
+Two panels sit behind the header, so the evidence and the detector are both in
+the demo rather than only in this file:
+
+**Evidence** renders the held-out table and the rupee cost, read live from
+`eval/results/day5_final.json` and `cost_model.json`. Nothing is typed into the
+page by hand — a number hardcoded in JavaScript is a number that can quietly
+disagree with the file it claims to summarise. It also surfaces the clock-jump
+correction and the fact that the held-out set was opened once, at a named commit.
+
+**Screen a listing** takes arbitrary text and runs it through the same pipeline
+the catalogue goes through — no demo mode, no scripted answer. It returns the
+verdict, the deciding layer, the confidence, the latency, and the exact
+characters that fired, and on a `flag` it shows the sanitised text the agent
+would have read. That last one is worth trying with a zero-width character in
+it: the listing is cleaned and still sells, which is the whole argument for
+having three verdicts instead of two.
+
 The catalogue is illustrative, and the page says so. The products are invented so
 that no real merchant is depicted running a prompt-injection attack, and the
 datasets could not have supplied a substitute anyway — the Amazon.in dump is
