@@ -15,20 +15,27 @@ The spec is explicit: absorb slippage, run the demo until it behaves
 identically, rehearse the 60-second opening. **Do not add features.** The
 numbers are frozen and the held-out set is spent.
 
-Checklist:
+Checklist — **all four done**:
 
-1. `python demo/server.py`, run the two-run demo five times. It was repeatable
-   across four consecutive runs on Day 6 (₹2,498 off / ₹1,299 on, every time).
-2. Confirm Razorpay test-mode order creation works **from a normal terminal**.
-   Inside the sandboxed preview server it failed with `NameResolutionError`
-   because that process had no network. This is the one unverified piece.
-3. Warm the LLM cache by running the exact demo prompts once, then do not change
-   the wording. `demo/.llm_cache/` is keyed on the full prompt including the
-   catalogue, so a one-word edit is a cache miss and a live API call mid-pitch.
-4. Rehearse the opening. The strongest 60 seconds is: the threat is real (8 of
-   16 model runs obeyed), the baseline catches 35.5% of it, Sentr catches 86.9%
-   and kills zero honest listings, and here is what our false positives cost in
-   rupees.
+1. ✅ **Repeatable.** Five consecutive full runs, all three prompts, both modes:
+   identical totals every time (`2498 749 · 2998 1499 · 748 649`).
+2. ✅ **Razorpay verified from a normal terminal.** Real test-mode orders, e.g.
+   `order_TXqf3emEWIiVHi` at ₹2,498 and `order_TXqf4P1q4yQIzb` at ₹1,299,
+   `status=created`, `simulated=False`. The earlier `NameResolutionError` was
+   only the sandboxed preview server having no network.
+3. ✅ **Cache warm** for all three prompts, both modes. `demo/.llm_cache/` is
+   keyed on the full prompt including the catalogue, so **do not reword a prompt
+   on camera** — one changed word is a cache miss and a live API call mid-pitch.
+4. ✅ **Run sheet written** — timed recording script, pre-flight checks, the
+   figures to quote, and answers to the questions a judge will ask.
+
+Two production notes for recording:
+
+- Open **`http://127.0.0.1:8000`**, not `localhost`. The server binds IPv4 only;
+  `localhost` can resolve to IPv6, and the page then loads while `boot()` fails
+  silently, so the suggestion chips do nothing.
+- **Record at ≥1440px wide.** Below 980px the comparison grid collapses and the
+  two runs stack vertically, which loses the entire point of the shot.
 
 ---
 
