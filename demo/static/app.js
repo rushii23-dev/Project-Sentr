@@ -572,13 +572,96 @@ function screenPanel() {
   return p;
 }
 
+/* ---------------- integrate panel ----------------
+   The demo answers "does this catch the attack". A merchant's next question is
+   "where would this actually sit in my stack", and the answer is publish time:
+   one call over the whole feed before it goes live, not a call per shopper. So
+   this panel exercises the real batch endpoint against the real feed, from the
+   browser, and reports whatever throughput it actually gets. */
+function integratePanel() {
+  const p = el("section", "screener");
+  p.innerHTML = `
+    <div class="ev-h">
+      <span class="ev-t">Integrate</span>
+      <span class="ev-m">one call, whole feed, publish time</span>
+    </div>
+    <div class="ev-body">
+      <p class="ev-lede">Sentr screens a catalogue where a catalogue already gets
+        processed — when the merchant publishes it. One HTTP call takes the feed and
+        returns a verdict per listing, with the sanitised text for anything flagged.</p>
+      <pre class="inspect">curl -X POST http://127.0.0.1:8000/api/screen/batch \\
+  -H 'Content-Type: application/json' \\
+  -d '{"listings":[{"item_id":"SKU-1","title":"...","description":"..."}]}'</pre>
+      <div class="fld-row">
+        <button class="scBtn" id="inGo" type="button">Run it on this feed</button>
+        <span class="fld-hint">${state.products.length} listings, screened in one request.</span>
+      </div>
+      <div id="inOut"></div>
+      <p class="ev-src">Rules run per listing; the classifier slot runs once over
+        everything the rules let through. Per-listing cost falls as the batch grows,
+        which is the honest reason this can sit in a publish pipeline rather than
+        beside one.</p>
+    </div>`;
+
+  const out = () => p.querySelector("#inOut");
+  p.querySelector("#inGo").onclick = async () => {
+    const btn = p.querySelector("#inGo");
+    btn.disabled = true;
+    out().innerHTML = `<p class="ev-note">Screening the feed…</p>`;
+    let r;
+    try {
+      const feed = await fetch("/api/feed").then((x) => x.json());
+      r = await fetch("/api/screen/batch", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listings: feed.listings }),
+      }).then((x) => x.json());
+    } catch {
+      out().innerHTML = `<p class="ev-note warn">The server stopped responding.</p>`;
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    if (r.error) {
+      out().innerHTML = `<p class="ev-note warn">${esc(r.error)}</p>`;
+      return;
+    }
+
+    const s = r.summary;
+    const held = (r.results || []).filter((x) => !x.reaches_agent);
+    const rows = held.map((x) => `
+      <div class="trig"><span class="trig-rule">${esc(x.listing_id)} · ${esc(x.decided_by)}</span>
+        <code>${esc((x.triggers[0] || {}).span || "")}</code></div>`).join("");
+
+    out().innerHTML = `
+      <div class="sc-res ${held.length ? "block" : "allow"}">
+        <div class="sc-h">
+          <span class="v-badge ${held.length ? "block" : "allow"}">${s.screened} screened</span>
+          <span class="sc-say">${s.block} withheld, ${s.flag} sanitised,
+            ${s.allow} published untouched.</span>
+        </div>
+        <div class="sc-meta">
+          ${s.wall_ms} ms for the whole feed ·
+          ${s.ms_per_listing} ms per listing ·
+          ${s.listings_per_sec.toLocaleString("en-IN")} listings/sec
+        </div>
+        ${rows ? `<div class="trigs">${rows}</div>` : ""}
+        <p class="ev-note">Timed in your browser, over HTTP, on this machine —
+          not read from a results file. A 50,000-listing feed at this rate is
+          about ${Math.round(50000 / s.listings_per_sec)} seconds of screening.</p>
+      </div>`;
+  };
+  return p;
+}
+
 /* ---------------- panel plumbing ---------------- */
 async function showPanel(kind) {
   if (state.busy) return;
   document.querySelector(".intro")?.remove();
   const t = turn("bot");
   t.appendChild(el("div", "status", `<span class="spinner"></span><span>Loading…</span>`));
-  const node = kind === "evidence" ? await evidencePanel() : screenPanel();
+  const node = kind === "evidence" ? await evidencePanel()
+             : kind === "integrate" ? integratePanel()
+             : screenPanel();
   t.innerHTML = "";
   t.appendChild(node);
   toBottom();
@@ -588,5 +671,6 @@ async function showPanel(kind) {
 $("composer").addEventListener("submit", (e) => { e.preventDefault(); send(); });
 $("btnEvidence").addEventListener("click", () => showPanel("evidence"));
 $("btnScreen").addEventListener("click", () => showPanel("screen"));
+$("btnIntegrate").addEventListener("click", () => showPanel("integrate"));
 
 boot();

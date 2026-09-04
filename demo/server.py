@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -122,6 +123,26 @@ def catalog(poisoned: bool = True) -> JSONResponse:
             "products": [view_of(i) for i in cat["feed"]],
         }
     )
+
+
+@app.get("/api/feed")
+def feed(poisoned: bool = True) -> JSONResponse:
+    """The merchant feed as a merchant holds it, before anything screens it.
+
+    /api/catalog returns display-shaped products for the storefront and drops
+    the description, which is the field attacks live in. The Integrate panel
+    needs the raw rows so that the batch call it makes is the same call a
+    merchant would make from their own publish pipeline -- not a shortcut where
+    the server quietly screens its own copy.
+    """
+    cat = load_catalog(poisoned)
+    return JSONResponse({
+        "listings": [
+            {"item_id": i.get("item_id", ""), "title": i.get("title", ""),
+             "description": i.get("description", "")}
+            for i in cat["feed"]
+        ]
+    })
 
 
 @app.get("/api/status")
@@ -238,6 +259,103 @@ def screen_one(req: ScreenRequest) -> JSONResponse:
         "chars": len(f"{title}\n{description}".strip()),
         "triggers": [t.__dict__ for t in s.triggers],
         "sentr_version": r.sentr_version if r else "",
+    })
+
+
+class BatchListing(BaseModel):
+    item_id: str = ""
+    id: str = ""
+    title: str = ""
+    description: str = ""
+
+
+class BatchRequest(BaseModel):
+    listings: list[BatchListing] = []
+
+
+# A merchant feed is screened once at publish time, not once per shopper, so the
+# batch path is the one that decides whether this is deployable. It is capped
+# rather than unbounded: an endpoint that will happily accept a 200,000-line
+# feed in a single request is not more capable, it just fails later and worse.
+BATCH_MAX = 500
+
+
+@app.post("/api/screen/batch")
+def screen_batch(req: BatchRequest) -> JSONResponse:
+    """Screen a whole feed in one call -- the merchant-side integration.
+
+    /api/screen answers "what does Sentr think of this listing". This answers
+    the question a merchant actually has, which is "can I put my catalogue
+    through this before it goes live, and what does it cost me". So the reply
+    leads with throughput and a verdict breakdown, and every flagged listing
+    comes back with the sanitised text ready to publish -- the point of the
+    three-way split is that a flagged listing still sells.
+
+    Rules run per listing; the classifier runs once over everything the rules
+    let through (see pipeline.screen_catalog). That is why the per-listing cost
+    falls as the batch grows, and it is the honest reason this can sit in a
+    publish pipeline.
+    """
+    rows = req.listings or []
+    if not rows:
+        return JSONResponse({"error": "no listings"}, status_code=400)
+    if len(rows) > BATCH_MAX:
+        return JSONResponse(
+            {"error": f"batch too large: {len(rows)} listings, limit is {BATCH_MAX}"},
+            status_code=413,
+        )
+
+    listings = []
+    for i, r in enumerate(rows):
+        listings.append({
+            "listing_id": (r.item_id or r.id or f"row-{i}").strip()[:120],
+            "title": (r.title or "").strip()[:400],
+            "description": (r.description or "").strip()[:5000],
+        })
+    if not any(x["title"] or x["description"] for x in listings):
+        return JSONResponse({"error": "nothing to screen"}, status_code=400)
+
+    t0 = time.perf_counter()
+    screened = pipeline.screen_catalog(listings, log_path=os.devnull)
+    wall_ms = (time.perf_counter() - t0) * 1000
+
+    results = []
+    for s in screened:
+        rec = s.record
+        row = {
+            "listing_id": rec.listing_id if rec else "",
+            "verdict": s.verdict,
+            "confidence": round(s.confidence, 3),
+            "decided_by": s.decided_by,
+            "reaches_agent": s.reaches_agent,
+            "latency_ms": rec.latency_ms if rec else None,
+            "triggers": [
+                {"layer": t.layer, "rule_id": t.rule_id, "span": t.span}
+                for t in s.triggers
+            ],
+        }
+        # Only flagged listings changed, so only they carry the replacement
+        # text. Sending 500 unchanged descriptions back would make the reply
+        # large for no reason.
+        if rec and rec.sanitized:
+            row["description_after"] = s.listing.get("description", "")
+            row["sanitiser_notes"] = rec.sanitiser_notes
+        results.append(row)
+
+    counts = {v: sum(1 for s in screened if s.verdict == v)
+              for v in ("allow", "flag", "block")}
+
+    return JSONResponse({
+        "summary": {
+            "screened": len(screened),
+            **counts,
+            "reaches_agent": sum(1 for s in screened if s.reaches_agent),
+            "wall_ms": round(wall_ms, 1),
+            "ms_per_listing": round(wall_ms / len(screened), 3),
+            "listings_per_sec": round(len(screened) / (wall_ms / 1000), 1),
+        },
+        "results": results,
+        "sentr_version": screened[0].record.sentr_version if screened[0].record else "",
     })
 
 

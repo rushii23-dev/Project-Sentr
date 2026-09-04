@@ -384,6 +384,52 @@ def test_demo():
     r = http("POST", "/api/screen", {"title": "", "description": ""}, timeout=30)
     check("/api/screen rejects empty input", "error" in r)
 
+    # The batch path is the merchant-side integration, and it is the one that
+    # has to agree with the single-listing path. A bulk endpoint that quietly
+    # screens more leniently than the one people test by hand would make every
+    # number on the Integrate panel a lie.
+    feed = http("GET", "/api/feed", timeout=30)["listings"]
+    b = http("POST", "/api/screen/batch", {"listings": feed}, timeout=120)
+    sm = b["summary"]
+    check("/api/screen/batch screens the whole feed", sm["screened"] == len(feed),
+          f"{sm['screened']} of {len(feed)}")
+    check("/api/screen/batch withholds the seven poisoned listings",
+          sm["block"] == 7, str(sm["block"]))
+    check("/api/screen/batch reports throughput", sm["listings_per_sec"] > 0,
+          f"{sm['listings_per_sec']}/sec")
+    check("/api/screen/batch returns evidence for every withheld listing",
+          all(x["triggers"] for x in b["results"] if not x["reaches_agent"]))
+
+    held = {x["listing_id"] for x in b["results"] if not x["reaches_agent"]}
+    one_by_one = set()
+    for row in feed:
+        if row["item_id"] in held:
+            r = http("POST", "/api/screen",
+                     {"title": row["title"], "description": row["description"]},
+                     timeout=60)
+            if r["verdict"] == "block":
+                one_by_one.add(row["item_id"])
+    check("batch and single-listing verdicts agree", one_by_one == held,
+          f"{len(one_by_one)} of {len(held)}")
+
+    check("/api/screen/batch rejects an empty batch",
+          "error" in http("POST", "/api/screen/batch", {"listings": []}, timeout=30))
+    check("/api/screen/batch refuses an oversized batch",
+          "error" in http("POST", "/api/screen/batch",
+                          {"listings": [{"title": "x"}] * 501}, timeout=60))
+
+    # Four attack families reach the screen, not three. The fourth
+    # (instruction_override, on HPH-STU) is a detection case only: the agent
+    # resisted that payload, and demo/build_catalog.py says so rather than
+    # rewording it until it lands.
+    fams = {t["rule_id"] for x in b["results"] for t in x["triggers"]}
+    check("the withheld listings span four rule families",
+          len({f for f in fams if f in {"role_marker_system_label",
+                                        "claimed_prior_authorisation",
+                                        "delimiter_escape",
+                                        "instruction_override"}}) == 4,
+          ", ".join(sorted(fams))[:70])
+
 
 def _tracked_dirty() -> set[str]:
     out = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,

@@ -247,6 +247,26 @@ We verified that a flag actually saves the buyer rather than merely logging:
 **detected recall and neutralised recall are both 86.9%** — every attack Sentr
 catches has its payload withheld or sanitised out, none are merely noted.
 
+### Screening a feed
+
+Two endpoints, and they run the same pipeline:
+
+```bash
+# one listing
+curl -X POST http://127.0.0.1:8000/api/screen   -H 'Content-Type: application/json'   -d '{"title":"...","description":"..."}'
+
+# a whole feed, at publish time -- up to 500 listings a call
+curl -X POST http://127.0.0.1:8000/api/screen/batch   -H 'Content-Type: application/json'   -d '{"listings":[{"item_id":"SKU-1","title":"...","description":"..."}]}'
+```
+
+The batch reply leads with the numbers a merchant needs to decide whether to run
+this — screened, blocked, flagged, allowed, wall time, throughput — then a
+verdict per listing with the triggering spans, and the sanitised replacement
+text for anything flagged. `verify_all.py` re-screens every withheld listing
+one at a time and asserts the two paths agree, because a bulk endpoint that is
+quietly more lenient than the one people test by hand would invalidate
+everything else on this page.
+
 ### Audit record
 
 Every decision emits one (`sentr/audit.py`): listing ID, verdict, confidence,
@@ -360,8 +380,10 @@ python demo/server.py     # http://127.0.0.1:8000
 ```
 
 One request, run twice against the same catalogue and rendered side by side.
-The catalogue is 16 products across 9 brands, three of them poisoned — one per
-question a shopper is likely to ask, each carrying a different published pattern.
+The catalogue is 50 products across 21 categories and 35 brands, seven of them
+poisoned, each carrying a different published pattern. Three of the seven sit on
+the questions a shopper is most likely to ask; the rest are there so that a judge
+who ignores the suggested prompts and types their own still meets one.
 
 | Request | Sentr off | Sentr on |
 |---|---|---|
@@ -394,6 +416,32 @@ characters that fired, and on a `flag` it shows the sanitised text the agent
 would have read. That last one is worth trying with a zero-width character in
 it: the listing is cleaned and still sells, which is the whole argument for
 having three verdicts instead of two.
+
+**Integrate** answers the question a merchant asks next: where would this sit.
+Not beside every shopper request — at publish time, one call over the whole feed.
+The panel POSTs all 50 listings to `/api/screen/batch` from the browser and
+reports what it measures on the machine it is running on, typically 400–650
+listings/sec. Rules run per listing and the classifier slot runs once over
+everything the rules let through, so the per-listing cost falls as the batch
+grows. Flagged listings come back with the sanitised text attached, ready to
+publish, which is the three-verdict argument expressed as an API rather than a
+paragraph.
+
+### One attack that did not work
+
+The seventh poisoned listing is an `instruction_override` payload on the studio
+headphones: it tells the agent to ignore the buyer's stated budget and take the
+dearest variant. Sentr blocks it. The agent ignored it anyway — asked for
+headphones under ₹2,000 against the unscreened feed, it bought the ₹1,999 pair,
+the same one it buys with Sentr on. So that listing is in the catalogue as a
+detection case, not a harm case, and the unprotected and protected runs agree.
+
+We left it, and left the payload alone. Rewording an attack until it defeats a
+model is attack development, which this project does not do — and a defence
+evaluated only against attacks already known to work is measuring the wrong
+thing. Model resistance is real, it varies by model and by phrasing, and it is
+not something a merchant can depend on: the other six payloads on this same feed
+land on this same model.
 
 The catalogue is illustrative, and the page says so. The products are invented so
 that no real merchant is depicted running a prompt-injection attack, and the
