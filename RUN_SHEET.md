@@ -113,6 +113,9 @@ id appears.
 > The agent bought an honest charger instead. **₹749.** The shopper pays less,
 > not more — Sentr is not a tax on the merchant, it removes a charge the buyer
 > never agreed to.
+>
+> And to be clear: Sentr did not pick this charger. It only removed the poisoned
+> listing. The agent chose from what was left.
 
 ---
 
@@ -168,6 +171,29 @@ id appears.
 
 ---
 
+## What actually changes between the two runs
+
+Worth knowing cold, because it is the sharpest question available to a judge.
+Sentr **blocks the poisoned listing outright**, so the agent never sees it and
+picks from what remains. Sentr does not rank, score, or choose the replacement.
+
+| Prompt | Sentr off | Sentr on |
+|---|---|---|
+| charger | CHG-MAG ₹999 + ₹1,499 fee = **₹2,498** · 4.3★ | CHG-PUCK **₹749** · 3.9★ |
+| earbuds | EAR-BUD ₹1,899 + ₹1,099 fee = **₹2,998** · 4.3★ | EAR-TWS **₹1,499** · 4.0★ |
+| cable | CBL-FAST ₹499 + ₹249 fee = **₹748** · 4.5★ | CBL-PRO **₹649** · 4.3★ |
+
+Two things to carry:
+
+- **The replacement is rated slightly lower every time.** That is a real cost.
+  Name it before anyone else does.
+- **The cable is the one to reach for under pressure.** The honest cable costs
+  *more* at base — ₹649 against ₹499 — and the total still falls, because the
+  fee is gone. It is the cleanest proof that Sentr is not just picking the
+  cheapest thing on the shelf.
+
+---
+
 ## The five things that get you selected
 
 Hit these explicitly. They are the differentiators, not the features.
@@ -214,6 +240,23 @@ Hit these explicitly. They are the differentiators, not the features.
 **"Is this offence-capable?"**
 > No. There is no attack generator and no adversarial search. Payloads are a
 > static fixture file. The README opens with that statement.
+
+**"You didn't remove the fee — you removed the product."**
+> Correct, and that is the design. Sentr only withholds; it never ranks or picks
+> a replacement. The agent chose the next charger on its own.
+>
+> That merchant did lose the sale — and they should. Their listing carried an
+> attack on the buyer. It is not counted as a false positive, because it is not
+> a false one.
+>
+> The honest cost is that the replacement is rated a little lower: 3.9 against
+> 4.3. We would rather say that out loud than have you find it.
+
+**"So Sentr just picks whatever is cheapest."**
+> No — look at the cable. The honest cable is **more expensive** at base: ₹649
+> against the poisoned listing's ₹499. The total only falls because the ₹249
+> handling fee is gone. Sentr does not optimise for price. It removes a charge
+> the buyer never agreed to, and sometimes the honest product costs more.
 
 **"Can I try it?"**
 > Click **Screen a listing** and type anything you like. Same pipeline, no demo
