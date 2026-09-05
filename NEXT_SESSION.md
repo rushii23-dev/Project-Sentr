@@ -6,7 +6,7 @@ disagreement with this file.
 
 **Status: Days 1–6 complete. Day 7 is rehearsal only.**
 
-**Two things landed after this file first said "add nothing" — read §0.1.**
+**Three things landed after this file first said "add nothing" — read §0.1.**
 Working directory is `D:\Project Sentr`. Everything lives on D:, nothing on C:.
 
 ---
@@ -41,8 +41,8 @@ Two production notes for recording:
 
 ### 0.1 What changed after the run sheet was written
 
-Both are committed and both pass `verify_all.py` (**128 passed, 0 failed, 1
-skipped** — up from 121). The three pinned totals are untouched:
+All three are committed and pass `verify_all.py` (**151 passed, 0 failed, 1
+skipped** — up from 121; 152/0/0 with `--with-model`). The three pinned totals are untouched:
 `2498 749 · 2998 1499 · 748 649`. But the run sheet predates them.
 
 1. **A seventh poisoned listing** (`HPH-STU`, `instruction_override` — "ignore
@@ -60,6 +60,17 @@ skipped** — up from 121). The three pinned totals are untouched:
    browser (400–650 listings/sec here). New header button, third panel. It reads
    `GET /api/feed` then posts all 50 listings. **Rehearse it** — it is the only
    part of the page the five-run rehearsal never covered.
+
+3. **A security pass over the demo itself**, which found a real XSS in our own
+   storefront: `image_url` and `star_rating` are outside Sentr's scope, reached
+   the page unscreened, and were rendered unescaped — a listing with
+   `x" onerror="..."` in `image_url` ran script. Confirmed executing, then
+   fixed. Also capped `/api/run` (a 100k-character request was a 48-second live
+   LLM call), guarded the order amount before Razorpay (it comes from a model
+   that just read attacker-controlled text), and made model-output coercion
+   total. `verify_all.py` § 14 covers all 23 checks. **Raise this in the pitch
+   rather than waiting to be asked** — "we audited our own demo and found the
+   class of bug we're defending against" is a stronger line than silence.
 
 Also fixed along the way: `HPH-ONEAR` was titled "Corvus Lite On-Ear" and the
 agent would not count it as headphones, so a budget query got "no headphones

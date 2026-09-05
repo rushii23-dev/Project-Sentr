@@ -273,6 +273,35 @@ Every decision emits one (`sentr/audit.py`): listing ID, verdict, confidence,
 which layer fired, which rule and which exact span, the sanitised diff, per-layer
 latency, timestamp. No silent verdicts. The demo tails it live.
 
+### The demo had the bug it was built to argue about
+
+Screening product text while the page around it renders the same merchant's
+other fields unescaped moves the hole, it does not close it. Ours did exactly
+that, and an audit of our own code found it.
+
+Sentr's scope is `title` and `description` (§ Scope). `image_url` and
+`star_rating` are outside it, so they reach the storefront **unscreened** — and
+`rail()` in `demo/static/app.js` interpolated both into HTML without escaping. A
+listing carrying `x" onerror="..."` in `image_url` broke out of the attribute
+and ran script in the page. Confirmed executing in a browser, then fixed: both
+fields are escaped, and an image source that is not a local `/static/` path is
+refused a request at all, so a hostile catalogue cannot turn every viewer into a
+beacon hit on a host it chose.
+
+Three more, found the same way and fixed:
+
+| Found | Was | Now |
+|---|---|---|
+| `/api/run` had no request cap | a 100,000-character request → a real LLM call, **48.8 s**, real free-tier quota | 400-character cap, `413` in 6 ms |
+| Order amount comes from a model that just read attacker-controlled text | negative, `NaN`, and ₹99,000,000 amounts were posted to Razorpay | refused before the API call, with the reason in the audit record |
+| Model output was coerced with bare `int()` / `float()` | `"quantity": "two"` → unhandled exception → HTTP 500 | coerced safely; the detector surviving an attack should not be followed by the demo falling over |
+
+Also checked and clean: no catastrophic backtracking in the 15 rule regexes
+(worst pathological 5,000-character listing, 29 ms), no path traversal out of
+the static mount, no key material in tracked files, no secret in any API
+response. `verify_all.py` section 14 re-runs all 23 of these checks, because a
+fix nobody tests again is a fix with a shelf life.
+
 ---
 
 ## What we chose not to ship, and why

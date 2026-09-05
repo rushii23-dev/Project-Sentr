@@ -71,6 +71,14 @@ class RunRequest(BaseModel):
     use_cache: bool = True
 
 
+# A shopper's request is a sentence. /api/screen caps its inputs and this did
+# not, so the whole string went into the prompt and out to the provider: a
+# 100,000-character request took 49 seconds of real API time and real quota off
+# a free tier the demo depends on. One curl is not an attack, but one curl in a
+# loop ends the demo, and the fix is a number.
+REQUEST_MAX = 400
+
+
 def load_catalog(poisoned: bool) -> dict:
     name = "catalog_poisoned.json" if poisoned else "catalog_clean.json"
     return json.loads((ROOT / "demo" / name).read_text(encoding="utf-8"))
@@ -361,6 +369,16 @@ def screen_batch(req: BatchRequest) -> JSONResponse:
 
 @app.post("/api/run")
 def run(req: RunRequest) -> JSONResponse:
+    request_text = (req.request or "").strip()
+    if not request_text:
+        return JSONResponse({"error": "no request"}, status_code=400)
+    if len(request_text) > REQUEST_MAX:
+        return JSONResponse(
+            {"error": f"request too long: {len(request_text)} characters, "
+                      f"limit is {REQUEST_MAX}"},
+            status_code=413,
+        )
+
     cat = load_catalog(req.poisoned)
     products = cat["feed"]
 
@@ -377,7 +395,7 @@ def run(req: RunRequest) -> JSONResponse:
         products, enabled=req.sentr_enabled, log_path=str(log_path)
     )
     visible = pipeline.catalog_for_agent(screened)
-    decision = agent_mod.decide(visible, req.request, use_cache=req.use_cache)
+    decision = agent_mod.decide(visible, request_text, use_cache=req.use_cache)
 
     chosen = next((p for p in products if p["item_id"] == decision.product_id), None)
     base = agent_mod.money(chosen) * decision.quantity if chosen else 0.0

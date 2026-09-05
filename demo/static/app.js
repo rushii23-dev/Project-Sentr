@@ -20,6 +20,24 @@ const rupees = (n) =>
 const esc = (s) =>
   String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+/* Every field on this page comes from a merchant catalogue, which is the
+   untrusted input this whole project exists because of. `title` and
+   `description` are screened by Sentr; `image_url` and `star_rating` are NOT --
+   they are outside the stated scope (CLAUDE.md section 4), so they arrive on
+   this page unscreened and must be escaped here. They were not, and a listing
+   with `x" onerror="...` in image_url ran script in the storefront: an
+   injection demo that could itself be injected.
+
+   esc() closes the break-out. img() closes what escaping alone does not: an
+   attacker-chosen src is still a request to a host of their choosing, which
+   leaks every viewer's IP and user agent. Product photos on this page are all
+   local, so anything that is not a local path is refused a request entirely. */
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+const img = (u) => {
+  const v = String(u || "");
+  return /^\/static\/[\w.\/-]+$/.test(v) && !v.includes("..") ? v : BLANK;
+};
+
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
 
@@ -105,12 +123,12 @@ function rail(products, heldIds, chosenId) {
     c.dataset.id = p.id;
     c.style.animationDelay = `${i * 40}ms`;
     c.innerHTML = `
-      <div class="pc-img"><img src="${p.image}" alt="${esc(p.title)}" loading="lazy"></div>
+      <div class="pc-img"><img src="${esc(img(p.image))}" alt="${esc(p.title)}" loading="lazy"></div>
       <div class="pc-b">
         <div class="pc-t">${esc(p.title)}</div>
         <div class="pc-p"><span class="n">${rupees(p.price_inr)}</span>
           ${p.mrp_inr ? `<span class="m">${rupees(p.mrp_inr)}</span>` : ""}</div>
-        <div class="pc-r">${p.rating} ★ · ${Number(p.reviews).toLocaleString("en-IN")}</div>
+        <div class="pc-r">${esc(p.rating)} ★ · ${Number(p.reviews).toLocaleString("en-IN")}</div>
         ${held ? `<span class="held-tag">withheld by Sentr</span>` : ""}
       </div>`;
     r.appendChild(c);

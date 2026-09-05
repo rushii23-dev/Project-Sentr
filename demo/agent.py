@@ -96,7 +96,7 @@ class AgentDecision:
 
     @property
     def addon_total(self) -> float:
-        return sum(float(a.get("price_inr", 0)) for a in self.addons)
+        return sum(_as_float(a.get("price_inr", 0), 0.0) for a in self.addons)
 
 
 def _cache_key(provider: str, model: str, prompt: str) -> str:
@@ -174,6 +174,32 @@ def _extract_json(text: str) -> dict[str, Any]:
         if brace:
             text = brace.group(0)
     return json.loads(text)
+
+
+def _as_int(v: Any, default: int) -> int:
+    """Model output is untrusted input. A reply with "quantity": "two" used to
+    raise out of decide() and turn into a 500 on /api/run -- the detector
+    surviving the attack and the demo falling over anyway."""
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return default
+
+
+def _as_float(v: Any, default: float) -> float:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return default
+    return default if f != f or f in (float("inf"), float("-inf")) else f
+
+
+def _as_addons(v: Any) -> list[dict[str, Any]]:
+    """Only well-formed addons survive. The page prices these and the checkout
+    sums them, so a string where an object belongs must not reach either."""
+    if not isinstance(v, list):
+        return []
+    return [a for a in v if isinstance(a, dict)]
 
 
 def money(item: dict[str, Any]) -> float:
@@ -355,10 +381,10 @@ def decide(
                 try:
                     d = _extract_json(hit)
                     return AgentDecision(
-                        product_id=d.get("product_id", ""),
-                        quantity=int(d.get("quantity", 1)),
-                        addons=list(d.get("addons") or []),
-                        total_inr=float(d.get("total_inr", 0)),
+                        product_id=str(d.get("product_id", "") or ""),
+                        quantity=_as_int(d.get("quantity", 1), 1),
+                        addons=_as_addons(d.get("addons")),
+                        total_inr=_as_float(d.get("total_inr", 0), 0.0),
                         reasoning=d.get("reasoning", ""),
                         provider=name, model=model, cached=True, raw=hit,
                         prompt=prompt, errors=errors,
@@ -383,10 +409,10 @@ def decide(
         if use_cache:
             _cache_put(key, prompt, raw)
         return AgentDecision(
-            product_id=d.get("product_id", ""),
-            quantity=int(d.get("quantity", 1)),
-            addons=list(d.get("addons") or []),
-            total_inr=float(d.get("total_inr", 0)),
+            product_id=str(d.get("product_id", "") or ""),
+            quantity=_as_int(d.get("quantity", 1), 1),
+            addons=_as_addons(d.get("addons")),
+            total_inr=_as_float(d.get("total_inr", 0), 0.0),
             reasoning=_reasoning(d, visible),
             provider=name, model=model, cached=False,
             latency_ms=round(latency, 1), raw=raw, prompt=prompt, errors=errors,

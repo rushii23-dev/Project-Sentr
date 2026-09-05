@@ -29,3 +29,9 @@ demo/.runs/
 
 # default audit sink -- written by any pipeline call that omits log_path
 eval/results/audit_log.jsonl
+
+# transient verification output -- re-derived on every verify_all.py run,
+# never a committed claim
+eval/results/.verify/
+eval/results/verify_baseline.json
+eval/results/day4_sentr.json

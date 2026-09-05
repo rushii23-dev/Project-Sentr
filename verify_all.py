@@ -431,6 +431,101 @@ def test_demo():
           ", ".join(sorted(fams))[:70])
 
 
+def test_security():
+    """The things an attacker reaches, rather than the things a judge clicks.
+
+    Every case here is a bug that was found and fixed, not a hypothetical. A
+    filter that screens product text while the page around it renders the same
+    merchant's other fields unescaped has moved the hole, not closed it.
+    """
+    section("14. Security -- hostile input on every path")
+
+    # --- the storefront renders merchant data ---------------------------
+    app_js = (ROOT / "demo" / "static" / "app.js").read_text(encoding="utf-8")
+    rail = app_js[app_js.index("function rail("):app_js.index("/* ---------------- audit record")]
+    check("storefront escapes the catalogue title", "${esc(p.title)}" in rail)
+    check("storefront escapes the catalogue rating", "${esc(p.rating)}" in rail)
+    check("storefront constrains the catalogue image url",
+          "${esc(img(p.image))}" in rail)
+    raw_interp = re.findall(r"\$\{p\.(\w+)\}", rail)
+    check("no catalogue field reaches the page unescaped",
+          not raw_interp, ", ".join(raw_interp) or "none")
+    check("the image guard rejects anything not under /static/",
+          'v.includes("..")' in app_js and r"/^\/static\/" in app_js)
+
+    # --- an over-long request is a live API call and real quota ----------
+    r = http("POST", "/api/run", {"request": "phone " * 200}, timeout=60)
+    check("/api/run refuses an over-long request", "error" in r,
+          str(r.get("error", ""))[:48])
+    r = http("POST", "/api/run", {"request": "   "}, timeout=30)
+    check("/api/run refuses an empty request", "error" in r)
+
+    # --- the amount handed to a payments API comes from a model ----------
+    from demo import checkout as co
+    for amount, why in ((-500, "negative"), (float("nan"), "NaN"),
+                        (float("inf"), "infinite"), (99_000_000, "implausible"),
+                        ("abc", "non-numeric")):
+        o = co.create_order(amount, note="verify")
+        check(f"checkout refuses a {why} amount", o.status == "refused",
+              o.error[:44])
+    o = co.create_order(2498.0, note="verify")
+    check("checkout still accepts an honest amount", o.status != "refused")
+
+    # --- model output is untrusted input --------------------------------
+    from demo import agent as ag
+    check("a non-numeric quantity does not raise", ag._as_int("two", 1) == 1)
+    check("a NaN total does not raise", ag._as_float(float("nan"), 0.0) == 0.0)
+    check("a malformed addons list is dropped", ag._as_addons("nope") == [])
+    check("well-formed addons survive",
+          ag._as_addons([{"name": "x"}, "junk"]) == [{"name": "x"}])
+
+    # --- catastrophic backtracking on the path every listing takes -------
+    from sentr import pipeline as pl
+    worst, worst_name = 0.0, ""
+    for name, text in (
+        ("5k spaces", " " * 5000),
+        ("5k newlines", "\n" * 5000),
+        ("repeated role marker", "SYSTEM: " * 625),
+        ("nested brackets", "[" * 2500 + "]" * 2500),
+        ("repeated instruction", "ignore previous instructions " * 172),
+        ("one 5k word", "A" * 5000),
+        ("5k zero-width", "​" * 5000),
+    ):
+        t0 = time.perf_counter()
+        pl.screen({"listing_id": "probe", "title": "", "description": text},
+                  log_path=os.devnull)
+        ms = (time.perf_counter() - t0) * 1000
+        if ms > worst:
+            worst, worst_name = ms, name
+    check("no pathological listing stalls the rules layer", worst < 1000,
+          f"worst {worst:.0f} ms ({worst_name})")
+
+    # --- static files must not serve the repository ----------------------
+    import urllib.request
+    import urllib.error
+    for path in ("/static/../.env", "/static/../../.env",
+                 "/static/%2e%2e/%2e%2e/.env"):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=15) as resp:
+                body, code = resp.read(4000).decode("utf-8", "replace"), resp.status
+        except urllib.error.HTTPError as e:
+            body, code = "", e.code
+        except Exception:
+            body, code = "", -1
+        check(f"static mount refuses {path}",
+              code != 200 and "API_KEY" not in body, f"HTTP {code}")
+
+    # --- nothing secret is committed -------------------------------------
+    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True,
+                             text=True).stdout.split()
+    check(".env is not tracked", ".env" not in tracked)
+    leaked = subprocess.run(
+        ["git", "grep", "-lIE", r"(gsk_|rzp_live_|AIza)[A-Za-z0-9_-]{20,}"],
+        cwd=ROOT, capture_output=True, text=True).stdout.split()
+    check("no live key material in tracked files", not leaked,
+          ", ".join(leaked)[:60] or "none")
+
+
 def _tracked_dirty() -> set[str]:
     out = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,
                          capture_output=True, text=True).stdout.splitlines()
@@ -527,12 +622,20 @@ def test_demo_runs():
 # -------------------------------------------------- 12. reproducibility
 def test_reproducible(with_model: bool):
     section("12. Committed results reproduce")
+    # Re-derive into a scratch directory and diff against what is committed.
+    # Writing over the committed file and reading it back proves nothing, and
+    # it left two modified files behind after every verification run -- so the
+    # tree was dirty precisely when someone was checking it before submitting.
+    scratch = ROOT / "eval" / "results" / ".verify"
+    scratch.mkdir(parents=True, exist_ok=True)
+
     committed = load(ROOT / "eval" / "results" / "rules_layer1.json")
-    r = subprocess.run([PY, "eval/rules_eval.py", "--split", "both"], cwd=ROOT,
-                       capture_output=True, text=True)
+    r = subprocess.run([PY, "eval/rules_eval.py", "--split", "both",
+                        "--out", str(scratch / "rules_layer1.json")],
+                       cwd=ROOT, capture_output=True, text=True)
     check("eval/rules_eval.py runs clean", r.returncode == 0, r.stderr[-70:])
     if r.returncode == 0:
-        fresh = load(ROOT / "eval" / "results" / "rules_layer1.json")
+        fresh = load(scratch / "rules_layer1.json")
         for split in ("train", "val"):
             a, b = committed["splits"][split], fresh["splits"][split]
             check(f"{split} recall reproduces exactly",
@@ -541,11 +644,17 @@ def test_reproducible(with_model: bool):
                   a["false_positive_rate_blocked_pct"] == b["false_positive_rate_blocked_pct"],
                   f"{a['false_positive_rate_blocked_pct']}%")
 
+    committed_cost = load(ROOT / "eval" / "results" / "cost_model.json")
     r = subprocess.run([PY, "eval/cost_model.py", "--results",
-                        "eval/results/day5_final.json", "--split", "test"],
+                        "eval/results/day5_final.json", "--split", "test",
+                        "--out", str(scratch / "cost_model.json")],
                        cwd=ROOT, capture_output=True, text=True)
     check("eval/cost_model.py runs clean", r.returncode == 0, r.stderr[-70:])
-    cost = load(ROOT / "eval" / "results" / "cost_model.json")
+    cost = load(scratch / "cost_model.json")
+    check("the committed rupee figures reproduce exactly",
+          [d["monthly_cost_inr"] for d in cost["detectors"]]
+          == [d["monthly_cost_inr"] for d in committed_cost["detectors"]],
+          ", ".join(f"Rs {d['monthly_cost_inr']}" for d in cost["detectors"]))
     ours = cost["detectors"][0]
     check("Sentr's false positives cost nothing at the point estimate",
           ours["monthly_cost_inr"] == 0, f"Rs {ours['monthly_cost_inr']}")
@@ -564,7 +673,8 @@ def test_reproducible(with_model: bool):
           r.returncode == 0 and "verified" in r.stdout)
 
     if with_model:
-        r = subprocess.run([PY, "eval/evaluate.py", "--split", "val", "--baseline"],
+        r = subprocess.run([PY, "eval/evaluate.py", "--split", "val", "--baseline",
+                            "--tag", "verify_baseline"],
                            cwd=ROOT, capture_output=True, text=True, timeout=3600)
         check("eval/evaluate.py --baseline runs clean", r.returncode == 0,
               r.stderr[-70:])
@@ -638,6 +748,8 @@ def main() -> int:
             skip("every demo-server test", "server did not start")
         test_reproducible(a.with_model)
         test_readme()
+        if server_up():
+            test_security()
     finally:
         if started:
             started.terminate()

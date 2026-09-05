@@ -125,6 +125,10 @@ def evaluate(split: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="train", choices=["train", "val", "both"])
+    # Re-running this to CHECK the committed numbers should not overwrite them.
+    # verify_all.py points --out at a scratch file and diffs the two, so a
+    # verification run leaves the working tree exactly as it found it.
+    ap.add_argument("--out", default=str(RESULTS / "rules_layer1.json"))
     a = ap.parse_args()
 
     splits = ["train", "val"] if a.split == "both" else [a.split]
@@ -150,11 +154,11 @@ def main() -> int:
             print(f"    {k:11} {v['caught']}/{v['n']} = {v['recall_pct']}%")
         print()
 
-    RESULTS.mkdir(parents=True, exist_ok=True)
     # Not "day3_rules": these numbers are re-measured whenever the rules or the
     # dataset change, and a filename claiming a date it was not produced on is
     # a small lie in a directory whose whole purpose is committed claims.
-    path = RESULTS / "rules_layer1.json"
+    path = Path(a.out)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"wrote {path}")
     return 0

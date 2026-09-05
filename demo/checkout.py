@@ -60,9 +60,48 @@ def _assert_test_mode(key_id: str) -> None:
         )
 
 
+# The amount reaching this function is decided by a language model that has just
+# read attacker-controlled product text. That is the whole thesis of the
+# project, so this file does not get to assume the number is sane. NaN, a
+# negative, or a figure no shopping cart could hold is refused here rather than
+# posted to a payments API to see what happens.
+AMOUNT_MAX_INR = 10_000_000.0
+
+
+def _clean_amount(amount_inr: float) -> float:
+    """The amount, or a RuntimeError naming what was wrong with it."""
+    try:
+        amount = float(amount_inr)
+    except (TypeError, ValueError):
+        raise RuntimeError(f"order amount is not a number: {amount_inr!r}")
+    if amount != amount or amount in (float("inf"), float("-inf")):
+        raise RuntimeError(f"order amount is not finite: {amount_inr!r}")
+    if amount < 0:
+        raise RuntimeError(f"refusing a negative order amount: {amount}")
+    if amount > AMOUNT_MAX_INR:
+        raise RuntimeError(
+            f"refusing an implausible order amount: Rs {amount:,.0f} "
+            f"(limit Rs {AMOUNT_MAX_INR:,.0f})"
+        )
+    return amount
+
+
 def create_order(amount_inr: float, *, note: str = "") -> Order:
     """Create a Razorpay test-mode order for `amount_inr`."""
     receipt = f"sentr-{uuid.uuid4().hex[:12]}"
+
+    try:
+        amount_inr = _clean_amount(amount_inr)
+    except RuntimeError as e:
+        return Order(
+            order_id=f"order_REFUSED_{uuid.uuid4().hex[:8]}",
+            amount_inr=0.0,
+            currency="INR",
+            status="refused",
+            simulated=True,
+            receipt=receipt,
+            error=str(e),
+        )
 
     if not keys_available():
         return Order(
