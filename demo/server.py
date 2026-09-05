@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import sys
 import time
 from contextlib import asynccontextmanager
@@ -45,7 +46,18 @@ async def lifespan(app: FastAPI):
         print(f"[sentr] classifier ready: {c.model_dir} thresholds={c.thresholds}")
     else:
         print(f"[sentr] no classifier at {c.model_dir} -- running on rules alone")
+
+    # Say so, out loud. uvicorn runs at log_level="warning" here because a line
+    # of access log per request is noise on a screen someone is presenting from
+    # -- but that also silences its "Uvicorn running on ..." banner, so a
+    # healthy server and a hung one look identical in the terminal. Ten minutes
+    # were lost to exactly that. The URL is spelled 127.0.0.1 on purpose: the
+    # server binds IPv4 only, and "localhost" can resolve to ::1, which loads
+    # the page while every fetch behind it fails.
+    print(f"[sentr] ready -- open http://127.0.0.1:{os.getenv('SENTR_PORT', '8000')}"
+          f"   (Ctrl+C to stop)", flush=True)
     yield
+    print("[sentr] stopped", flush=True)
 
 
 app = FastAPI(title="Sentr demo", lifespan=lifespan)
@@ -461,4 +473,35 @@ def run(req: RunRequest) -> JSONResponse:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
+    PORT = int(os.getenv("SENTR_PORT", "8000"))
+
+    # Claim the port before starting, not during. uvicorn handles a bind failure
+    # itself and exits, so an except around uvicorn.run() never runs -- and by
+    # then the lifespan has already printed "ready", which is a lie on a server
+    # that is about to die. Failing here keeps the two honest.
+    #
+    # WinError 10048 / EADDRINUSE is nearly always a server from an earlier run
+    # whose terminal window was closed instead of Ctrl+C: the process outlives
+    # the window. The raw errno does not say that, so say it here.
+    probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        probe.bind(("127.0.0.1", PORT))
+    except OSError as e:
+        kill = (f'powershell -Command "Get-NetTCPConnection -LocalPort {PORT} '
+                f'-State Listen | ForEach-Object '
+                f'{{ Stop-Process -Id $_.OwningProcess -Force }}"')
+        for line in (
+            "",
+            f"[sentr] could not bind port {PORT}: {e}",
+            "[sentr] a Sentr server is probably already running.",
+            f"[sentr]   already running?  just open http://127.0.0.1:{PORT}",
+            f"[sentr]   need to restart?  {kill}",
+            f"[sentr]   another port?     set SENTR_PORT={PORT + 1}",
+            "",
+        ):
+            print(line, flush=True)
+        raise SystemExit(1)
+    finally:
+        probe.close()
+
+    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
