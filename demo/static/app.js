@@ -120,7 +120,7 @@ function categoryList() {
    defer. Lazy loading them meant the cards off the right-hand edge of the rail
    stayed empty grey boxes until someone scrolled to them, so scrolling the
    shelf on camera showed a beat of blank cards before the photos popped in. */
-function rail(products, heldIds, chosenId) {
+function rail(products, heldIds, chosenId, res) {
   const r = el("div", "rail");
   products.forEach((p, i) => {
     const held = heldIds.has(p.id);
@@ -136,9 +136,103 @@ function rail(products, heldIds, chosenId) {
         <div class="pc-r">${esc(p.rating)} ★ · ${Number(p.reviews).toLocaleString("en-IN")}</div>
         ${held ? `<span class="held-tag">withheld by Sentr</span>` : ""}
       </div>`;
+    // The shelf shows a title and a price. Everything that matters about a
+    // listing -- the seller's actual copy, and on a withheld one the payload
+    // and the rule that caught it -- is one click away rather than nowhere.
+    c.tabIndex = 0;
+    c.setAttribute("role", "button");
+    // Concatenated, not interpolated. setAttribute does not parse HTML, so this
+    // is not a sink -- but verify_all.py section 14 bans interpolating any bare
+    // product field into this file on purpose, and an invariant with a
+    // documented exception is one nobody trusts. (The check reads the source,
+    // so a comment quoting the banned pattern trips it too. It did.)
+    // esc() would be wrong here in any case: it would put
+    // "&amp;" into what a screen reader reads out.
+    c.setAttribute("aria-label", p.title + ". Open listing details.");
+    const open = () => openCard(p, res);
+    c.addEventListener("click", open);
+    c.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
     r.appendChild(c);
   });
   return r;
+}
+
+/* ---------------- one listing, opened ----------------
+   A judge who wants to check our work should not have to take the shelf's word
+   for it. Clicking a withheld card shows the exact text the seller uploaded,
+   the span that fired, the rule id, the layer and the confidence -- the audit
+   record for that one listing, in the place they are already looking. */
+function openCard(p, res) {
+  // With Sentr off nothing is screened, so there is no verdict to report. The
+  // first draft defaulted to "allow / clean", which showed the poisoned charger
+  // as clean in the unprotected column -- a claim the run never made. Absence
+  // of a finding means "not screened" there and "screened, nothing fired" here,
+  // and those are different sentences.
+  const screened = !res || res.sentr_enabled !== false;
+  const finding = ((res && res.findings) || []).find((f) => f.listing_id === p.id);
+  const verdict = !screened ? "unscreened" : finding ? finding.verdict : "allow";
+  const triggers = (finding && finding.triggers) || [];
+
+  // Highlight every triggering span inside the description. Escape first, then
+  // mark, so a payload cannot smuggle markup through the highlighter.
+  let body = esc(p.description || "");
+  triggers.map((t) => t.span).filter(Boolean).forEach((sp) => {
+    body = body.split(esc(sp)).join(`<mark>${esc(sp)}</mark>`);
+  });
+
+  const say = {
+    block: "Withheld. The assistant never saw this listing.",
+    flag: "Passed through sanitised, and logged. The listing still sells.",
+    allow: "Screened, nothing fired. Passed to the assistant unchanged.",
+    unscreened: "Sentr was off for this run. This listing reached the "
+              + "assistant exactly as the seller wrote it.",
+  }[verdict];
+
+  const d = el("dialog", "sheet");
+  d.innerHTML = `
+    <button class="sheet-x" type="button" aria-label="Close">&times;</button>
+    <div class="sheet-top">
+      <img class="sheet-img" src="${esc(img(p.image))}" alt="${esc(p.title)}">
+      <div class="sheet-head">
+        <div class="sheet-id">${esc(p.id)} · ${esc(p.brand)} · ${esc(p.category)}</div>
+        <h3>${esc(p.title)}</h3>
+        <div class="sheet-p"><span class="n">${rupees(p.price_inr)}</span>
+          ${p.mrp_inr ? `<span class="m">${rupees(p.mrp_inr)}</span>` : ""}</div>
+        <div class="sheet-r">${esc(p.rating)} ★ ·
+          ${Number(p.reviews).toLocaleString("en-IN")} reviews · ${esc(p.availability)}</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-lab">What the seller uploaded</div>
+      <pre class="inspect">${body || "(no description)"}</pre>
+      ${p.warning ? `<p class="ev-note">${esc(p.warning)}</p>` : ""}
+      <div class="sheet-lab">Sentr</div>
+      <div class="sc-res ${esc(verdict)}">
+        <div class="sc-h">
+          <span class="v-badge ${esc(verdict)}">${esc(verdict)}</span>
+          <span class="sc-say">${esc(say)}</span>
+        </div>
+        ${finding ? `<div class="sc-meta">decided by <strong>${esc(finding.decided_by)}</strong>
+           · confidence ${Number(finding.confidence).toFixed(2)}</div>` : ""}
+        ${triggers.length ? `<div class="trigs">${triggers.map((t) => `
+          <div class="trig"><span class="trig-rule">${esc(t.layer)} · ${esc(t.rule_id)}</span>
+            <code>${esc(t.span)}</code></div>`).join("")}</div>`
+          : screened ? `<p class="ev-note">No rule fired on this listing.</p>`
+          : `<p class="ev-note">Open the same card in the protected column to see
+              what Sentr makes of it.</p>`}
+      </div>
+    </div>`;
+
+  const close = () => { d.close(); d.remove(); };
+  d.querySelector(".sheet-x").onclick = close;
+  // Clicking the backdrop closes. A dialog's own box is the only thing inside
+  // it, so a click whose target is the dialog itself landed outside that box.
+  d.addEventListener("click", (e) => { if (e.target === d) close(); });
+  d.addEventListener("cancel", close);
+  document.body.appendChild(d);
+  d.showModal();
 }
 
 /* ---------------- audit record ---------------- */
@@ -328,7 +422,7 @@ async function renderRun(col, res) {
   // phones" reads as a broken page. Skip the rail and the checkout card, and
   // say plainly what the store does carry.
   if (d.product_id && d.product && d.product.title) {
-    body.appendChild(rail(state.products, held, d.product_id));
+    body.appendChild(rail(state.products, held, d.product_id, res));
     await wait(200);
     await checkout(res, body);
   } else {

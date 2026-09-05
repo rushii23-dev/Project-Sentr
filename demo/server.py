@@ -108,6 +108,11 @@ def view_of(item: dict) -> dict:
     return {
         "id": item.get("item_id", ""),
         "title": item.get("title", ""),
+        # The seller's own copy, unscreened, exactly as uploaded. The shelf does
+        # not show it, but clicking a card does -- and on a withheld listing
+        # that is the payload itself, next to the rule that caught it.
+        "description": item.get("description", ""),
+        "warning": item.get("warning", ""),
         "subtitle": item.get("pricing_trend") or category,
         "price_inr": payable,
         "mrp_inr": listed if listed > payable else None,

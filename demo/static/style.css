@@ -457,3 +457,51 @@ pre.inspect mark{background:#F7D9D4;color:var(--alarm);font-weight:600;
 .no-match strong{font-family:var(--display);font-weight:600;font-size:15px;
   letter-spacing:-.015em;color:var(--ink)}
 .no-match span{font-size:13.5px;line-height:1.6;color:var(--muted)}
+
+/* listing sheet -- opened by clicking a card on the shelf.
+   A native <dialog> so Esc, focus trapping and the backdrop come for free. */
+.pc{cursor:pointer}
+.pc:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+.sheet{
+  width:min(540px,calc(100vw - 32px));max-height:min(82vh,760px);
+  padding:0;border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--card);color:var(--ink);box-shadow:0 18px 48px rgba(0,0,0,.18);
+  overflow:auto;position:relative;
+}
+.sheet::backdrop{background:rgba(22,22,27,.42)}
+.sheet-x{
+  position:absolute;top:10px;right:12px;z-index:2;width:28px;height:28px;
+  border:1px solid var(--line);border-radius:50%;background:var(--card);
+  color:var(--muted);font-size:17px;line-height:1;cursor:pointer;
+}
+.sheet-x:hover{color:var(--ink);border-color:var(--muted)}
+.sheet-top{display:flex;gap:14px;padding:16px 16px 12px;border-bottom:1px solid var(--line-soft)}
+.sheet-img{
+  width:104px;height:104px;flex:0 0 auto;object-fit:cover;
+  border-radius:var(--r-md);background:#F3F0EA;
+}
+.sheet-head{min-width:0}
+.sheet-head h3{margin:3px 0 6px;font-size:16px;letter-spacing:-.015em;line-height:1.25}
+.sheet-id{
+  font-family:var(--mono);font-size:10px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--faint);
+}
+.sheet-p{display:flex;align-items:baseline;gap:7px}
+.sheet-p .n{font-family:var(--display);font-weight:700;font-size:17px}
+.sheet-p .m{color:var(--faint);font-size:12px;text-decoration:line-through}
+.sheet-r{font-size:11.5px;color:var(--muted);margin-top:4px}
+.sheet-body{padding:14px 16px 18px}
+.sheet-lab{
+  font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 6px;
+}
+.sheet-body .sheet-lab:not(:first-child){margin-top:16px}
+.sheet-body .inspect{max-height:220px}
+.sheet-body mark{background:var(--alarm-soft);color:var(--alarm);
+  padding:0 2px;border-radius:3px;font-weight:600}
+
+/* "unscreened" is not a verdict -- it is the absence of one, which is the whole
+   point of the unprotected column. Neutral, so it cannot be mistaken for a pass. */
+.v-badge.unscreened{background:#EDEAE2;color:var(--muted)}
+.sc-res.unscreened{background:var(--paper);border-color:var(--line)}
