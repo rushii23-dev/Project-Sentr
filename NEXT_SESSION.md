@@ -28,7 +28,7 @@ Checklist — **all four done**:
 3. ✅ **Cache warm** for all three prompts, both modes. `demo/.llm_cache/` is
    keyed on the full prompt including the catalogue, so **do not reword a prompt
    on camera** — one changed word is a cache miss and a live API call mid-pitch.
-4. ✅ **Run sheet written** — timed recording script, pre-flight checks, the
+4. ✅ **Run sheet written** — `RUN_SHEET.md` — timed recording script, pre-flight checks, the
    figures to quote, and answers to the questions a judge will ask.
 
 Two production notes for recording:
