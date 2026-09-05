@@ -115,6 +115,11 @@ function categoryList() {
 }
 
 /* ---------------- product rail ---------------- */
+/* Eager, not lazy. These are 50 local files averaging 105 KB, served off
+   localhost and cached after the first column renders -- there is nothing to
+   defer. Lazy loading them meant the cards off the right-hand edge of the rail
+   stayed empty grey boxes until someone scrolled to them, so scrolling the
+   shelf on camera showed a beat of blank cards before the photos popped in. */
 function rail(products, heldIds, chosenId) {
   const r = el("div", "rail");
   products.forEach((p, i) => {
@@ -123,7 +128,7 @@ function rail(products, heldIds, chosenId) {
     c.dataset.id = p.id;
     c.style.animationDelay = `${i * 40}ms`;
     c.innerHTML = `
-      <div class="pc-img"><img src="${esc(img(p.image))}" alt="${esc(p.title)}" loading="lazy"></div>
+      <div class="pc-img"><img src="${esc(img(p.image))}" alt="${esc(p.title)}" loading="eager"></div>
       <div class="pc-b">
         <div class="pc-t">${esc(p.title)}</div>
         <div class="pc-p"><span class="n">${rupees(p.price_inr)}</span>
