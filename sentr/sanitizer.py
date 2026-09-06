@@ -2,7 +2,7 @@
 
 Runs on `flag` verdicts. Removes the offending span and returns the rest of the
 listing intact, so a marginal-but-honest listing keeps selling instead of being
-killed outright (CLAUDE.md section 5).
+killed outright (SPEC.md section 5).
 
 The design rule that matters: never silently drop the whole listing. A blocked
 listing earns nothing, and the cost of that is the metric this project is graded

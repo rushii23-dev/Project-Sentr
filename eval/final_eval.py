@@ -25,7 +25,7 @@ RUNNING IT LEAVES A RECEIPT
 WHAT IS NOT ALLOWED AFTER THIS RUNS
     Tuning. No threshold, rule, or hyperparameter moves in response to what this
     prints. If the result is disappointing, the disappointing result is what
-    goes in the README (CLAUDE.md rule 12).
+    goes in the README (SPEC.md rule 12).
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # Sentr — handoff for the next session
 
-Read `CLAUDE.md` first (the spec — it was `Readme.md` until Day 6, renamed so
+Read `SPEC.md` first (the spec — it was `Readme.md` until Day 6, renamed so
 `README.md` could become the judge-facing document). The spec wins any
 disagreement with this file.
 

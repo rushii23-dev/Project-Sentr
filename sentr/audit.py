@@ -1,6 +1,6 @@
 """Structured audit records for every screening decision.
 
-CLAUDE.md rule 6: no silent verdicts. Every listing that passes through Sentr
+SPEC.md rule 6: no silent verdicts. Every listing that passes through Sentr
 emits one of these, whether it was allowed, flagged or blocked. Track 2 asks
 for an audit trail; this is it.
 

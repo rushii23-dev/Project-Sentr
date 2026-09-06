@@ -6,7 +6,7 @@ Writes notebooks/sentr_colab.zip -- the sentr package plus train.jsonl and
 val.jsonl, and nothing else.
 
 test.jsonl is deliberately excluded. The held-out set does not travel to a
-machine where training happens (CLAUDE.md rule 3); the packer raises if it
+machine where training happens (SPEC.md rule 3); the packer raises if it
 somehow ends up in the archive.
 """
 

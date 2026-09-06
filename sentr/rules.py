@@ -1,7 +1,7 @@
 """Layer 1 -- the rule engine.
 
 This module contains NO rules. It loads sentr/rules.yaml and applies whatever is
-declared there (CLAUDE.md rule 5), so the detection logic can be audited and
+declared there (SPEC.md rule 5), so the detection logic can be audited and
 extended without touching Python.
 
 Three rule types are supported:

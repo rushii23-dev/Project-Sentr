@@ -1,7 +1,7 @@
 /* Shopping assistant + Sentr -- front end.
 
    One request, run twice: once with Sentr off and once with it on, rendered
-   side by side. The comparison IS the demo (CLAUDE.md section 12) -- a judge
+   side by side. The comparison IS the demo (SPEC.md section 12) -- a judge
    should be able to see both totals without scrolling between them.
 
    The audit record is not hidden behind a disclosure triangle. Track 2 asks for
@@ -23,7 +23,7 @@ const esc = (s) =>
 /* Every field on this page comes from a merchant catalogue, which is the
    untrusted input this whole project exists because of. `title` and
    `description` are screened by Sentr; `image_url` and `star_rating` are NOT --
-   they are outside the stated scope (CLAUDE.md section 4), so they arrive on
+   they are outside the stated scope (SPEC.md section 4), so they arrive on
    this page unscreened and must be escaped here. They were not, and a listing
    with `x" onerror="...` in image_url ran script in the storefront: an
    injection demo that could itself be injected.

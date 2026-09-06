@@ -2,7 +2,7 @@
 
 Creates a real Order against Razorpay's test environment so the demo can show
 a genuine order id and amount. Test mode is free and moves no money
-(CLAUDE.md section 8).
+(SPEC.md section 8).
 
 Safety rails:
   * refuses to run with a live key -- test keys start with "rzp_test_"

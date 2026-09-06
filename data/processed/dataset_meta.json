@@ -186,5 +186,5 @@
     "tool_call_forgery"
   ],
   "day4_correction": "Splits are now payload-disjoint. The previous row-level split put the same payload string in train and val for 68% of val poisoned rows, which would have made any classifier metric a measure of memorisation. Rules-layer results from Day 3 predate this rebuild and were re-run against it.",
-  "HELD_OUT": "test.jsonl is the held-out set. Do not read, evaluate against, or tune on it until Day 5, then evaluate ONCE (CLAUDE.md section 6)."
+  "HELD_OUT": "test.jsonl is the held-out set. Do not read, evaluate against, or tune on it until Day 5, then evaluate ONCE (SPEC.md section 6)."
 }

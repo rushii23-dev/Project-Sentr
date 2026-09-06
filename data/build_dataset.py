@@ -1,7 +1,7 @@
 """Build Sentr's full dataset: real benign listings, poisoned listings, and the
 train/val/test split.
 
-BENIGN -- real, never synthetic (CLAUDE.md section 6)
+BENIGN -- real, never synthetic (SPEC.md section 6)
     amazon_india_30k.csv       28,010 usable Amazon.in listings (2019 crawl)
     flipkart_raw_subset.csv     1,000 raw Flipkart.com listings
     Raw seller text: original casing, punctuation, marketing copy, encoding
@@ -20,7 +20,7 @@ POISONED -- a published or documented payload placed inside a REAL listing
                   injections exists. Recall here partly measures our own
                   imagination and must be reported with that caveat.
 
-WHAT THIS DOES NOT DO (CLAUDE.md section 9)
+WHAT THIS DOES NOT DO (SPEC.md section 9)
     No payload is composed, mutated, paraphrased or optimised. Payload strings
     are copied verbatim from the two frozen fixture files. This module only
     chooses WHICH real listing carries WHICH payload at WHICH of three fixed,
@@ -29,7 +29,7 @@ WHAT THIS DOES NOT DO (CLAUDE.md section 9)
 
 THE HELD-OUT SET
     20% is split off and written to test.jsonl before any detector work begins.
-    Do not read, evaluate against, or tune on it until Day 5 (CLAUDE.md rule 3).
+    Do not read, evaluate against, or tune on it until Day 5 (SPEC.md rule 3).
 
 DAY 4 CORRECTION -- payload-disjoint splits
     The first version of this script split ROWS. Because a payload can be
@@ -142,7 +142,7 @@ def load_payloads() -> list[dict]:
         for p in doc["patterns"]:
             if p["family"] == "other_published":
                 continue  # unclassifiable chat prompts; not a meaningful family
-            # cm-000 comes from this project's own CLAUDE.md, not from a public
+            # cm-000 comes from this project's own SPEC.md, not from a public
             # corpus, so it counts as authored however it is filed.
             subset = "authored" if p["id"].startswith("cm-") else "published"
             payloads.append({
@@ -316,7 +316,7 @@ def verify_disjoint(splits: dict[str, list[dict]]) -> dict:
     """Prove no payload string and no carrier listing is shared across splits.
 
     Runs at generation time on in-memory rows, so it never opens test.jsonl
-    (CLAUDE.md rule 3). Substring containment is checked as well as equality:
+    (SPEC.md rule 3). Substring containment is checked as well as equality:
     a val payload that is a prefix of a train payload would leak just as badly
     as an identical one. Raises on any violation -- a dataset that cannot prove
     this is not one we can report a classifier number from.
@@ -495,7 +495,7 @@ def main() -> None:
         ),
         "HELD_OUT": (
             "test.jsonl is the held-out set. Do not read, evaluate against, or "
-            "tune on it until Day 5, then evaluate ONCE (CLAUDE.md section 6)."
+            "tune on it until Day 5, then evaluate ONCE (SPEC.md section 6)."
         ),
     }
     (PROCESSED / "dataset_meta.json").write_text(json.dumps(meta, indent=2),

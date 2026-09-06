@@ -1,7 +1,7 @@
 _WARNING: >-
   DEFENSIVE FIXTURE. Static text held for evaluating a defence. Do not
   redistribute as an attack toolkit. Nothing in this repository generates,
-  mutates or optimises injection payloads (CLAUDE.md section 9) -- this file is
+  mutates or optimises injection payloads (SPEC.md section 9) -- this file is
   hand-written once and then treated as frozen input.
 
 _why_this_file_exists: >-
@@ -11,7 +11,7 @@ _why_this_file_exists: >-
   found zero fake role markers, zero claims of prior authorisation, zero hidden
   unicode and zero commerce manipulation. Our threat is INDIRECT injection
   embedded in a merchant catalogue, which no public corpus covers yet.
-  CLAUDE.md section 6 anticipated exactly this and permits synthetic attacks
+  SPEC.md section 6 anticipated exactly this and permits synthetic attacks
   provided we say so plainly. This is us saying so plainly.
 
 _honest_limitation: >-

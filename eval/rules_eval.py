@@ -1,7 +1,7 @@
 """Evaluate the layer-1 rule engine on train and val.
 
 NOT the held-out set. test.jsonl stays sealed until Day 5, when it is opened
-once (CLAUDE.md rule 3). Passing --split test is refused here on purpose.
+once (SPEC.md rule 3). Passing --split test is refused here on purpose.
 
 Recall is reported separately for the two attack subsets, because they are not
 equally strong evidence:

@@ -6,7 +6,7 @@ The track asks for "honest metrics including false-positive cost". A rate is not
 a cost, so this converts one into the other, with every assumption named and
 overridable on the command line.
 
-THE MODEL (CLAUDE.md section 7)
+THE MODEL (SPEC.md section 7)
 
     monthly cost = FPR_blocked x listings x conversion_rate x average_order_value
 

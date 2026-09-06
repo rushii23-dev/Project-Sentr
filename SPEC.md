@@ -268,7 +268,7 @@ If any proposed feature drifts toward generating attacks — stop and flag it ra
 ```
 sentr/
   README.md              # defence-only statement first, then metrics table
-  CLAUDE.md              # this file
+  SPEC.md              # this file
   .env.example
   requirements.txt
   data/
@@ -346,7 +346,7 @@ Then one slide: baseline vs Sentr metrics, including the false positives we stil
 
 ---
 
-## 13. Working rules for Claude Code
+## 13. Working rules
 
 1. **Simplest thing that works.** Seven days. No abstractions for imagined future needs.
 2. **No scope additions.** If it isn't in §4 in-scope, don't build it. Flag it instead.

@@ -1,6 +1,6 @@
 """Layer 2 -- the fine-tuned classifier.
 
-Runs only on what the rules allowed, so the fast path stays fast (CLAUDE.md
+Runs only on what the rules allowed, so the fast path stays fast (SPEC.md
 section 5). Its job is the ~13% of attacks the rules miss: paraphrased
 instruction overrides and authorisation claims with no keyword to grab.
 

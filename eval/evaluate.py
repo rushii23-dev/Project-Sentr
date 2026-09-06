@@ -4,7 +4,7 @@
     python eval/evaluate.py --split val --baseline
 
 NOT the held-out set. `--split test` is refused here on purpose; test.jsonl is
-opened once, on Day 5 (CLAUDE.md rule 3).
+opened once, on Day 5 (SPEC.md rule 3).
 
 WHAT IT REPORTS, AND WHY EACH ONE IS HERE
 
@@ -26,7 +26,7 @@ WHAT IT REPORTS, AND WHY EACH ONE IS HERE
     rows over 512 tokens        how many listings an unchunked detector would
                                 have read only the first half of
 
-Every number here is reproducible by re-running this script (CLAUDE.md rule 10).
+Every number here is reproducible by re-running this script (SPEC.md rule 10).
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ def load(split: str) -> list[dict]:
     if split == "test":
         raise SystemExit(
             "test.jsonl is held out and is not evaluated here. Day 5 opens it "
-            "once, with eval/final_eval.py (CLAUDE.md rule 3)."
+            "once, with eval/final_eval.py (SPEC.md rule 3)."
         )
     return [json.loads(l) for l in open(PROCESSED / f"{split}.jsonl", encoding="utf-8")]
 

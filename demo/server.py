@@ -1,7 +1,7 @@
 """FastAPI backend for the Sentr storefront demo.
 
 Serves one page and one endpoint. The page is hand-written HTML/CSS/JS with no
-build step (CLAUDE.md section 8) and every asset -- fonts, photos -- is stored
+build step (SPEC.md section 8) and every asset -- fonts, photos -- is stored
 locally, so a demo never depends on a network that might not be there.
 
 Run:  python demo/server.py     then open http://127.0.0.1:8000
@@ -188,7 +188,7 @@ def metrics() -> JSONResponse:
     """The held-out results, read from the committed files that hold the claims.
 
     Deliberately not hardcoded in the page. eval/results/ is the source of truth
-    (CLAUDE.md rule 10); a number typed into JavaScript is a number that can
+    (SPEC.md rule 10); a number typed into JavaScript is a number that can
     silently disagree with the evidence it claims to summarise.
     """
     final = RESULTS / "day5_final.json"

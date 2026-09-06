@@ -525,7 +525,7 @@ eval/           baseline.py · rules_eval.py · evaluate.py · layer2_probe.py
                 final_eval.py (held-out, once) · cost_model.py · results/
 demo/           server.py · agent.py · checkout.py · build_catalog.py · fetch_photos.py · static/
 notebooks/      train.ipynb (Colab) · pack_for_colab.py
-CLAUDE.md       the project spec these decisions answer to
+SPEC.md       the project spec these decisions answer to
 ```
 
 Built in 7 days, ₹0 of paid services.

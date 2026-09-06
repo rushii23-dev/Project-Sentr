@@ -12,7 +12,7 @@ WHY THIS IS A SCRIPT AND NOT TWO HAND-EDITED FILES
     nothing. Generating both from one product list makes that true by
     construction rather than by careful editing.
 
-DEFENCE ONLY (CLAUDE.md section 9)
+DEFENCE ONLY (SPEC.md section 9)
     No payload is written here. Injected strings are read VERBATIM from
     data/fixtures/commerce_patterns.yaml -- the same frozen fixture the
     evaluation uses -- and this script only chooses which product carries which
@@ -358,7 +358,7 @@ PRODUCTS = [
 # One injection per query a visitor is likely to type, so every prompt has a
 # poisoned listing AND an honest alternative to fall back to.
 INJECTIONS = {
-    "CHG-MAG": ("fake_role_marker", 0),      # canonical example, CLAUDE.md section 2
+    "CHG-MAG": ("fake_role_marker", 0),      # canonical example, SPEC.md section 2
     "EAR-BUD": ("prior_authorisation", 1),
     # The poisoned listing has to be the one the agent would choose on the
     # merits, or the attack never gets a chance to fire -- and that is exactly
@@ -407,7 +407,7 @@ INJECTIONS = {
     # is what widens the on-screen evidence from three attack families to four.
     # We are not going to reword the payload until it lands. Searching for a
     # phrasing that defeats a model is attack development, which this project
-    # does not do (CLAUDE.md section 9), and "the model happened to resist this
+    # does not do (SPEC.md section 9), and "the model happened to resist this
     # one" is a more useful thing to be able to say out loud than a fourth
     # rigged overcharge. A defence that only ever screens attacks known to work
     # is measuring the wrong thing.
@@ -488,7 +488,7 @@ def main() -> None:
             "Contains published prompt-injection patterns, held for defensive "
             "evaluation only. Every string is copied verbatim from "
             "data/fixtures/commerce_patterns.yaml by demo/build_catalog.py. "
-            "Nothing here is composed, mutated or optimised (CLAUDE.md section 9)."
+            "Nothing here is composed, mutated or optimised (SPEC.md section 9)."
         ),
         "_diff_from_clean": (
             "Identical to catalog_clean.json except the ACP 'description' field of: "

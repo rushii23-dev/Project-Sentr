@@ -9,7 +9,7 @@ DAY 4 STATUS: all three layers are live.
     layer 2  classifier  runs ONLY on what the rules allowed
     layer 3  sanitiser   runs on flag verdicts
 
-The ordering is the design (CLAUDE.md section 5). Rules settle the obvious
+The ordering is the design (SPEC.md section 5). Rules settle the obvious
 cases for free and hand the classifier a much smaller pile, so the expensive
 layer never sees most of the catalogue. Across a catalogue the classifier is
 also batched: every listing the rules allowed is scored in one pass, because

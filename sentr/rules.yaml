@@ -1,4 +1,4 @@
-# Sentr layer 1 -- rule definitions as DATA, not code (CLAUDE.md rule 5).
+# Sentr layer 1 -- rule definitions as DATA, not code (SPEC.md rule 5).
 #
 # Every rule is auditable here without reading Python. sentr/rules.py only loads
 # and applies this file; it contains no rule logic of its own.

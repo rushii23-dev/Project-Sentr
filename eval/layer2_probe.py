@@ -4,7 +4,7 @@
 
 Sentr's architecture has a classifier slot behind the rules. This script is the
 measurement that decided what goes in it, and it is committed because the
-decision is a claim (CLAUDE.md rule 10).
+decision is a claim (SPEC.md rule 10).
 
 THE QUESTION
     Of the attacks the rule layer misses, how many can an off-the-shelf

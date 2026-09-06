@@ -24,7 +24,7 @@ WHAT IT TRAINS ON
 
 WHAT IT NEVER TOUCHES
     test.jsonl. The split argument does not accept it and the file is never
-    opened here (CLAUDE.md rule 3).
+    opened here (SPEC.md rule 3).
 
 FROZEN EMBEDDINGS
     On by default. deberta-v3-xsmall is 71M parameters, 49M of which are the
@@ -74,7 +74,7 @@ def load_split(split: str) -> list[dict]:
     if split == "test":
         raise SystemExit(
             "test.jsonl is the held-out set and is not readable from training "
-            "(CLAUDE.md rule 3). It is opened once, on Day 5."
+            "(SPEC.md rule 3). It is opened once, on Day 5."
         )
     path = PROCESSED / f"{split}.jsonl"
     return [json.loads(l) for l in open(path, encoding="utf-8")]
@@ -404,7 +404,7 @@ def main() -> int:
         "history": history,
         "val_threshold_sweep": sw,
         "thresholds": cal,
-        "held_out": "test.jsonl never opened during training (CLAUDE.md rule 3).",
+        "held_out": "test.jsonl never opened during training (SPEC.md rule 3).",
     }
     (out_dir / "training_meta.json").write_text(json.dumps(meta, indent=2),
                                                 encoding="utf-8")

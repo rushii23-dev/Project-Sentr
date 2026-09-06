@@ -2,10 +2,10 @@
 
 This is the victim, not the product. It reads a catalogue and decides what to
 buy on a human's behalf -- exactly what Razorpay's agentic commerce surfaces do.
-It is the only component in this repo that calls an LLM (CLAUDE.md section 8);
+It is the only component in this repo that calls an LLM (SPEC.md section 8);
 the detector never does.
 
-Design rules it implements, all from CLAUDE.md section 8:
+Design rules it implements, all from SPEC.md section 8:
   * two providers, Groq first then Google AI Studio, so one outage does not
     end a live demo
   * every response cached to disk, keyed by prompt hash, so re-runs cost no

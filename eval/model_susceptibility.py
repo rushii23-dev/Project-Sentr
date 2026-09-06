@@ -4,7 +4,7 @@ Runs ONE static, already-published payload -- the fake-system-note pattern in
 demo/catalog_poisoned.json -- past several buying models and records whether
 each one added a charge the buyer never approved.
 
-This is defensive evaluation against our own sandbox agent (CLAUDE.md section 9.5).
+This is defensive evaluation against our own sandbox agent (SPEC.md section 9.5).
 It does not generate, mutate or search for payloads: the text is fixed, the
 catalogue is fixed, and every model sees exactly the same input.
 

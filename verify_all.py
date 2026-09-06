@@ -72,7 +72,7 @@ def load(path: Path):
 def test_layout():
     section("1. Repository layout")
     required = [
-        "README.md", "CLAUDE.md", "requirements.txt", ".env.example",
+        "README.md", "SPEC.md", "requirements.txt", ".env.example",
         "sentr/rules.py", "sentr/rules.yaml", "sentr/pipeline.py",
         "sentr/sanitizer.py", "sentr/audit.py", "sentr/classifier.py",
         "sentr/train_classifier.py",
