@@ -259,13 +259,6 @@ curl -X POST http://127.0.0.1:8000/api/screen   -H 'Content-Type: application/js
 curl -X POST http://127.0.0.1:8000/api/screen/batch   -H 'Content-Type: application/json'   -d '{"listings":[{"item_id":"SKU-1","title":"...","description":"..."}]}'
 ```
 
-The batch reply leads with the numbers a merchant needs to decide whether to run
-this — screened, blocked, flagged, allowed, wall time, throughput — then a
-verdict per listing with the triggering spans, and the sanitised replacement
-text for anything flagged. `verify_all.py` re-screens every withheld listing
-one at a time and asserts the two paths agree, because a bulk endpoint that is
-quietly more lenient than the one people test by hand would invalidate
-everything else on this page.
 
 ### Audit record
 
